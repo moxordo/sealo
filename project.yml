@@ -1,0 +1,103 @@
+name: divingbell
+
+options:
+  bundleIdPrefix: io.moxordo
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+  defaultConfig: Debug
+  generateEmptyDirectories: true
+
+# SPM packages: none in M0. swift-snapshot-testing deferred to M1
+# (Xcode 26.4/Swift 6.3 module compatibility issue with the current
+# release; see docs/02-progress.md deviations). GRDB.swift deferred
+# to M2 (no consumer until persistence layer lands).
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    MARKETING_VERSION: "0.0.1"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    ALWAYS_SEARCH_USER_PATHS: NO
+    COPY_PHASE_STRIP: NO
+    # Concurrency strictness deliberately left at default (minimal).
+    # Dial up to "complete" in M2 once real concurrency surface exists;
+    # turning it on now would produce warnings that gate the M0 clean build.
+  configs:
+    Debug:
+      ENABLE_TESTABILITY: YES
+
+targets:
+  divingbell:
+    type: application
+    platform: iOS
+    sources:
+      - path: divingbell
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell
+        PRODUCT_NAME: divingbell
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: divingbell
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"   # iPhone only
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+
+  divingbellTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: divingbellTests
+    dependencies:
+      - target: divingbell
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.tests
+        PRODUCT_NAME: divingbellTests
+        PRODUCT_MODULE_NAME: divingbellTests
+        GENERATE_INFOPLIST_FILE: YES
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/divingbell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/divingbell"
+
+  divingbellUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: divingbellUITests
+    dependencies:
+      - target: divingbell
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.uitests
+        PRODUCT_NAME: divingbellUITests
+        PRODUCT_MODULE_NAME: divingbellUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: divingbell
+
+schemes:
+  divingbell:
+    build:
+      targets:
+        divingbell: all
+        divingbellTests: [test]
+        divingbellUITests: [test]
+    run:
+      config: Debug
+      commandLineArguments: {}
+      environmentVariables: []
+    test:
+      config: Debug
+      targets:
+        - divingbellTests
+        - divingbellUITests
+      gatherCoverageData: true
+      coverageTargets:
+        - divingbell

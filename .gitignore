@@ -1,0 +1,35 @@
+# Generated Xcode project (xcodegen regenerates from project.yml)
+*.xcodeproj
+*.xcworkspace
+!*.xcodeproj/project.pbxproj.meta
+
+# Xcode build + user state
+build/
+DerivedData/
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcresult
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Package.pins
+Package.resolved
+
+# CocoaPods / Carthage (not used, guarded against)
+Pods/
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

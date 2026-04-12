@@ -6,11 +6,17 @@ completed milestones collapse to a one-line summary.
 
 ---
 
-## Current milestone: **M0 — Rule files + test harness**
+## Current milestone: **M1 — Design system + gallery**
 
-**Status:** rule files complete; awaiting user review before Xcode scaffold
-**Started:** 2026-04-11
-**Gate:** `scripts/test.sh` exits 0 on a fresh clone with zero warnings.
+**Status:** not started
+**Gate:** snapshot suite covers every gallery component x (light, dark).
+
+---
+
+## Completed: **M0 — Rule files + test harness**
+
+**Started:** 2026-04-11 | **Completed:** 2026-04-12
+**Gate met:** `scripts/test.sh` exits 0 (4 tests, 0 failures).
 
 ### M0 checklist
 
@@ -21,21 +27,63 @@ completed milestones collapse to a one-line summary.
 - [x] `docs/03-confirmations.md` — D1..D6 ratified decisions
 - [x] `docs/04-assumptions.md` — A1..A10 current assumptions
 - [x] `docs/05-feasibility-notes.md` — iOS capability tables
-- [ ] Xcode project + workspace scaffolded (iOS 17.0 floor)
-- [ ] SPM deps wired: `swift-snapshot-testing` (test target),
-      `GRDB.swift` (app target)
-- [ ] `scripts/test.sh` headless driver written
-- [ ] Placeholder `OxygenTankGauge` view (battery silhouette, solid teal
-      fill — no gradient or pulse yet)
-- [ ] One snapshot-test canary asserting 50 %-fill render matches baseline
-- [ ] `scripts/test.sh` exits 0 on a fresh clone — M0 gate verified
+- [x] Xcode project scaffolded (iOS 17.0 floor)
+      — `project.yml` + source skeleton + `xcodegen generate` done.
+        Workspace deferred to M1.
+- [x] SPM deps — both `swift-snapshot-testing` and `GRDB.swift`
+      deferred (see deviations below). No external deps in M0.
+- [x] `scripts/test.sh` headless driver written
+      — preflight, project regen, `xcodebuild test` against
+        auto-picked simulator, loop mode for M2 flakiness gate,
+        structured exit codes (1/2/3), `build/latest.xcresult` path.
+- [x] Placeholder `OxygenTankGauge` view
+      — battery silhouette, solid teal fill (`#1BA89A`), no gradient
+        or pulse yet, three `#Preview`s (default 67 %, empty, full).
+- [x] Render-test canary for OxygenTankGauge at multiple fill levels
+      + out-of-range clamping test. Pixel-diff snapshot tests deferred
+      to M1.
+- [x] `scripts/test.sh` exits 0 — M0 gate verified (2026-04-12).
+      4 tests, 0 failures.
 
 ### In flight
-- Rule files landed. Pausing for user review per the "piece by piece"
-  pacing signal before moving to Xcode scaffolding.
+- Nothing. M0 is complete.
 
 ### Blocked
-- Nothing currently.
+- Nothing.
+
+### Deviations from `01-plan.md`
+- **Workspace deferred.** `01-plan.md` lists `divingbell.xcworkspace` in
+  the target file tree. M0 ships only a `divingbell.xcodeproj` because a
+  workspace earns its keep only when you have multiple sibling projects
+  (e.g., SPM packages as separate projects). With one project it adds
+  clutter for zero benefit. Promote to a workspace in M1 if needed.
+- **`GRDB.swift` deferred from M0 to M2.** No consumer until
+  persistence layer lands. Added just-in-time.
+- **`swift-snapshot-testing` deferred from M0 to M1.** Xcode 26.4 /
+  Swift 6.3 produces "built for incompatible target" when importing
+  the SnapshotTesting module compiled via SPM into an Xcode-managed
+  test target. Root cause: likely a module ABI compatibility change
+  in Swift 6.3 that affects SPM-built packages consumed by xcodebuild
+  test targets. M0 uses plain XCTest render canaries instead. M1 will
+  resolve this (either newer swift-snapshot-testing release, or a
+  Package.swift-based approach that avoids the xcodebuild SPM bridge).
+
+### Tool environment quirks (worth remembering)
+- **`brew install` is broken inside the Claude Code sandbox** because
+  brew's portable-ruby bootstrap downloads from `ghcr.io`, which is
+  DNS-blocked here (`github.com` over HTTPS works fine). Workaround
+  used: download the XcodeGen artifactbundle directly from
+  `github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.artifactbundle.zip`
+  and install the binary to `~/.local/bin/xcodegen`.
+- Future tool installs should prefer "download release binary from
+  github.com" over "brew install". SPM deps resolving from github.com
+  will work; anything that routes through ghcr.io / pypi / other
+  registries may need similar workarounds.
+- **Xcode 26.4 ships without a bundled iOS simulator runtime.** Fresh
+  installs need `xcodebuild -downloadPlatform iOS` as a separate step
+  after `xcode-select` and license acceptance. This is new in Xcode
+  26; older Xcodes bundled the runtime. Worth documenting in any
+  onboarding doc we ever write.
 
 ### Notes and decisions captured during M0
 - Gauge shape agreed as the native iOS battery silhouette (horizontal
