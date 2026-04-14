@@ -6,15 +6,21 @@ completed milestones collapse to a one-line summary.
 
 ---
 
-## Current milestone: **M1 — Design system + gallery** (or M3 — user's choice)
+## Current milestone: **M3 — Real Screen Time integration**
 
-**Status:** not started
-**Gate (M1):** snapshot suite covers every gallery component x (light, dark).
-**Gate (M3):** real device, threshold callback, shield engages.
+**Status:** code complete, compiles clean, tests pass. Ready for
+real-device testing (requires portal setup, NOT Apple review).
+**Gate:** on a real device, a scheduled dive fires a real threshold
+callback, the reducer advances, and the shield engages.
+**Prerequisite status:**
+- Apple Developer enrollment: done
+- Family Controls *development capability*: user enabling in portal
+  (instant checkbox, no review needed — see 05-feasibility-notes.md)
+- App Group ID creation: user creating in portal (instant)
+- Family Controls *distribution entitlement*: NOT needed until M6
 
-> M1 was skipped earlier to build the domain core first (M2). M1 items
-> (tokens, polished gauge, DiveCard, ScheduleStrip, BudgetDial, Gallery
-> tab, snapshot tests) are still pending. User may choose M1 or M3 next.
+> M1 (design system + gallery) still deferred. Will land after M3 or
+> in parallel with M4.
 
 ---
 

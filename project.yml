@@ -37,6 +37,10 @@ targets:
     platform: iOS
     sources:
       - path: divingbell
+    dependencies:
+      - target: divingbellMonitor
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell
@@ -50,6 +54,29 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"   # iPhone only
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        CODE_SIGN_ENTITLEMENTS: divingbell/divingbell.entitlements
+
+  divingbellMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: divingbellMonitor
+      # Include Domain types so the extension can use DailyBudget
+      # accounting logic (fillFraction, shouldPreArmShield, etc.)
+      # and SharedState for App Group IPC.
+      - path: divingbell/Domain
+      - path: divingbell/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.monitor
+        PRODUCT_NAME: divingbellMonitor
+        PRODUCT_MODULE_NAME: divingbellMonitor
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: divingbellMonitor/Info.plist
+        CODE_SIGN_ENTITLEMENTS: divingbellMonitor/divingbellMonitor.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
 
   divingbellTests:
     type: bundle.unit-test

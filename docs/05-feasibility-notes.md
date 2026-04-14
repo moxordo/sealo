@@ -24,16 +24,22 @@ future-me will otherwise have to re-derive every session.
 
 ## The hard constraints you cannot wish away
 
-### 1. Family Controls is an entitlement gated by Apple review
+### 1. Family Controls has two tiers of access
 
-Not a developer-portal checkbox — an actual paperwork submission. Apple
-approves these for apps in the well-being / parental-controls category,
-but you will wait days, not minutes. **Apply early.**
+- **Development capability** — a checkbox in the developer portal
+  (Certificates, Identifiers & Profiles → App ID → Capabilities →
+  Family Controls). Takes effect immediately. Lets you run the full
+  Screen Time API on your own device via Xcode. **This is all M3
+  needs.**
+- **Distribution entitlement** — a form submission
+  (`developer.apple.com/contact/request/family-controls-distribution`)
+  that Apple manually reviews. Required for TestFlight and App Store
+  distribution. Takes 1–5 business days. **This is an M6 concern.**
 
-**Consequence for the plan:** M0–M2 are built behind `FakeScreenTimeService`
-so the build, test, and design-system work moves in parallel with the
-paperwork. M3 swaps in `RealScreenTimeService` once the entitlement is
-approved.
+**Consequence for the plan:** M0–M2 ran behind `FakeScreenTimeService`.
+M3 uses `RealScreenTimeService` on the developer's own device
+immediately after enabling the development capability. The distribution
+entitlement is deferred to M6 (TestFlight beta).
 
 ### 2. We cannot poll foreground time
 

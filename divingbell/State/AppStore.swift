@@ -57,6 +57,16 @@ public final class AppStore {
         self.clock = clock
     }
 
+    /// Reconcile local state with the App Group shared state written
+    /// by the `DeviceActivityMonitor` extension while we were backgrounded.
+    public func reconcileWithSharedState() {
+        if let sharedBudget = SharedDefaults.loadDailyBudget() {
+            state.dailyBudget = sharedBudget
+        }
+        state.isShieldArmed = SharedDefaults.isShieldArmed
+        state.lastThresholdUpdate = SharedDefaults.lastThresholdUpdate
+    }
+
     // MARK: - Reducer
 
     /// Side effects the caller should execute after `send` returns.
