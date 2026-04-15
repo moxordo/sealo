@@ -14,9 +14,9 @@ real-device testing (requires portal setup, NOT Apple review).
 callback, the reducer advances, and the shield engages.
 **Prerequisite status:**
 - Apple Developer enrollment: done (2026-04-14)
-- App ID `io.moxordo.sealo` + `io.moxordo.sealo.monitor` with
+- App ID `com.moxordo.sealo` + `com.moxordo.sealo.monitor` with
   Family Controls capability: user creating in portal
-- App Group `group.io.moxordo.sealo`: user creating in portal
+- App Group `group.com.moxordo.sealo`: user creating in portal
 - Family Controls *distribution entitlement*: NOT needed until M6
 
 ### Notes from this iteration (2026-04-15)
@@ -30,6 +30,10 @@ callback, the reducer advances, and the shield engages.
 - GitHub repo renamed `moxordo/divingbell` → `moxordo/sealo`.
 - Portal IDs the user will create use the new names from day one,
   so no Apple-side rename needed.
+- **Bundle prefix amendment:** changed from `io.moxordo.*` to
+  `com.moxordo.*` in a follow-up commit. Still pre-portal, so zero
+  rework. `com.` is the more traditional convention. See `D8`
+  amendment note.
 
 > M1 (design system + gallery) still deferred. Will land after M3 or
 > in parallel with M4.

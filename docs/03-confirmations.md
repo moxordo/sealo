@@ -174,11 +174,15 @@ an app whose premise is already adversarial to user habits.
 
 **Decision:** App, project, bundle identifiers, and GitHub repo all
 rename from `divingbell` to `sealo`. Display name is **Sealo**
-(capitalised). Bundle ID is `io.moxordo.sealo` (+ `.monitor`,
-`.tests`, `.uitests`). App Group is `group.io.moxordo.sealo`.
+(capitalised). Bundle ID is `com.moxordo.sealo` (+ `.monitor`,
+`.tests`, `.uitests`). App Group is `group.com.moxordo.sealo`.
 Character name: Sealo. App name: Sealo. Both are the same.
 
 **Ratified:** 2026-04-15
+**Amended:** 2026-04-15 — prefix changed from `io.moxordo.*` to
+`com.moxordo.*` before any App IDs were registered with Apple, so
+zero portal rework was needed. Both prefixes are functionally
+identical; `com.` is the more traditional convention.
 
 **Rationale:** "divingbell" was a codename chosen for the metaphor
 (sealed chamber with finite oxygen). It was descriptive but awkward

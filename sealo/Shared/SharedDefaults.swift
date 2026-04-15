@@ -12,7 +12,7 @@ import FamilyControls
 /// constants. We use `Codable` round-tripping rather than individual
 /// keys to keep the data model centralized and versionable.
 public enum SharedDefaults {
-    public static let suiteName = "group.io.moxordo.sealo"
+    public static let suiteName = "group.com.moxordo.sealo"
 
     private static var suite: UserDefaults {
         UserDefaults(suiteName: suiteName) ?? .standard

@@ -1,7 +1,7 @@
 name: sealo
 
 options:
-  bundleIdPrefix: io.moxordo
+  bundleIdPrefix: com.moxordo
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -43,7 +43,7 @@ targets:
         codeSign: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo
         PRODUCT_NAME: sealo
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -68,7 +68,7 @@ targets:
       - path: sealo/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.monitor
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.monitor
         PRODUCT_NAME: sealoMonitor
         PRODUCT_MODULE_NAME: sealoMonitor
         GENERATE_INFOPLIST_FILE: NO
@@ -87,7 +87,7 @@ targets:
       - target: sealo
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.tests
         PRODUCT_NAME: sealoTests
         PRODUCT_MODULE_NAME: sealoTests
         GENERATE_INFOPLIST_FILE: YES
@@ -103,7 +103,7 @@ targets:
       - target: sealo
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.uitests
         PRODUCT_NAME: sealoUITests
         PRODUCT_MODULE_NAME: sealoUITests
         GENERATE_INFOPLIST_FILE: YES

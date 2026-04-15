@@ -152,7 +152,7 @@ reading the same design-system module. Mechanical refactor.
 ## A10 — Bundle identifier (promoted to D8 on 2026-04-15)
 
 **Assumption:** The app's bundle identifier will be
-`io.moxordo.sealo`, matching the existing `/Users/andy/moxordo/`
+`com.moxordo.sealo`, matching the existing `/Users/andy/moxordo/`
 workspace convention on the user's machine.
 
 **Stated:** 2026-04-11
