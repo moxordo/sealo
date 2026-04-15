@@ -85,23 +85,44 @@ them behind `#available` where they meaningfully help.
 
 ---
 
-## D5 — Gauge visual metaphor
+## D5 — Visual system (amended 2026-04-15)
 
-**Decision:** Native iOS battery silhouette (horizontal pill with a
-right-side nub), differentiated from the system battery only by color —
-specifically a vibrant-but-controlled teal gradient fill.
+**Decision:** Two complementary visual layers, each optimised for a
+different job:
 
-**Ratified:** 2026-04-11
+1. **Battery silhouette gauge** for glanceable surfaces — Dynamic
+   Island minimal/compact/expanded, Lock Screen Live Activity, home
+   widgets. Native iOS battery shape (horizontal pill + right-side
+   nub) with a vibrant-but-controlled teal gradient fill. Chosen
+   because users recognise the shape in under 100 ms without reading
+   any label.
 
-**Rationale:** Users recognise the native battery shape in under 100 ms
-without reading any label — a decade of iOS training. Reusing the shape
-inherits that recognition for free; changing the color owns the metaphor.
-A round pressure-gauge dial or a diving-bell silhouette would sacrifice
-recognition speed for literalism, which is a bad trade at Dynamic Island
-sizes.
+2. **Sealo character** for in-app and emotional surfaces — dashboard
+   hero, onboarding, shield screen, notifications. A playful diving
+   seal who embodies the oxygen-budget metaphor and adds a companion
+   layer the battery alone can't carry.
 
-**Impact if reversed:** `OxygenTankGauge` becomes a custom shape with no
-glyph-recognition head start; Appendix A mockups need re-drawing.
+The two never compete for the same slot. The gauge lives where
+sub-100 ms read matters. Sealo lives where emotional engagement and
+brand identity matter.
+
+**Ratified:** 2026-04-11 (original battery-silhouette decision)
+**Amended:** 2026-04-15 (added Sealo character layer alongside)
+
+**Rationale:** The battery silhouette alone won on glanceability but
+gave up the behavior-change potency of a mascot-driven brand (Duolingo,
+Headspace, Finch all demonstrate the latter). Replacing the silhouette
+with a seal-shaped gauge would sacrifice glanceability at small sizes
+(rendering a seal at 24 pt tall is genuinely hard). Keeping both —
+silhouette for the "how much air?" read, Sealo for the "who am I
+diving with?" read — captures both benefits without compromising
+either.
+
+**Impact if reversed:**
+- Dropping Sealo → loses the emotional/brand layer; app reverts to
+  functional dashboard with no character.
+- Dropping battery silhouette → loses sub-100 ms Dynamic Island
+  recognition; all small-surface read times degrade.
 
 ---
 
@@ -121,3 +142,54 @@ metaphor pure reduces both confusion and implementation work.
 **Impact if reversed:** Dashboard grows an icon row bound to the current
 `FamilyActivitySelection`; Dynamic Island expanded grows chip slots;
 re-render costs accumulate across surfaces.
+
+---
+
+## D7 — Sealo tone guardrail
+
+**Decision:** Sealo never expresses negative emotions toward the user.
+Sealo may get tired (low oxygen), but not angry or disappointed.
+Sealo celebrates when the user resurfaces; Sealo never shames the
+user for hitting a limit. Emotional states react to the *situation*
+(running out of breath, reaching the surface, starting a fresh day),
+never to user *failure*.
+
+**Ratified:** 2026-04-15
+
+**Rationale:** Mascot apps have a well-known failure mode where the
+character becomes a guilt vector — Duolingo's owl is the canonical
+example. The fix is to decouple the character's emotional expression
+from user compliance: Sealo looks tired because the tank is low, not
+because "you scrolled too much today." Preserves the "calm, not
+alarmist" design pillar from `CLAUDE.md` while still allowing a
+mascot's emotional range.
+
+**Impact if reversed:** Opens the door to Duolingo-style nagging
+notifications. Reduces trust. Likely long-term uninstall driver for
+an app whose premise is already adversarial to user habits.
+
+---
+
+## D8 — Rebrand: divingbell → Sealo
+
+**Decision:** App, project, bundle identifiers, and GitHub repo all
+rename from `divingbell` to `sealo`. Display name is **Sealo**
+(capitalised). Bundle ID is `io.moxordo.sealo` (+ `.monitor`,
+`.tests`, `.uitests`). App Group is `group.io.moxordo.sealo`.
+Character name: Sealo. App name: Sealo. Both are the same.
+
+**Ratified:** 2026-04-15
+
+**Rationale:** "divingbell" was a codename chosen for the metaphor
+(sealed chamber with finite oxygen). It was descriptive but awkward
+to say, long to type, and hard to search for in an App Store.
+"Sealo" is 2 syllables, follows the successful character-name pattern
+(Duo, Nomo, Mobi), and IS the mascot — app and character share a
+name, which doubles the brand surface for free. No major "seal app"
+owns that mascot space today.
+
+**Impact if reversed:** The rename is mechanical (one migration
+commit); reversing it is equally mechanical. Much more painful if we
+defer the rename past the point where App Store metadata, press
+coverage, or user habits have accumulated — but at M3 with no real
+users yet, the window is still open.

@@ -150,10 +150,10 @@ you do not want a JS runtime in any of these.
 
 | Target | Runs when | Approx memory budget |
 |---|---|---|
-| `divingbellMonitor` (`DeviceActivityMonitor`) | Threshold callbacks fire | ~30 MB |
-| `divingbellShieldConfig` (`ShieldConfigurationExtension`) | Shield screen needs to render | ~30 MB |
-| `divingbellShieldAction` (`ShieldActionExtension`) | User taps shield button | ~30 MB |
-| `divingbellWidget` (`WidgetKit` + `ActivityKit`) | Widget timeline refresh / Live Activity render | ~30 MB |
+| `sealoMonitor` (`DeviceActivityMonitor`) | Threshold callbacks fire | ~30 MB |
+| `sealoShieldConfig` (`ShieldConfigurationExtension`) | Shield screen needs to render | ~30 MB |
+| `sealoShieldAction` (`ShieldActionExtension`) | User taps shield button | ~30 MB |
+| `sealoWidget` (`WidgetKit` + `ActivityKit`) | Widget timeline refresh / Live Activity render | ~30 MB |
 
 All four talk to the main app through the **App Group shared container
 only**. No direct IPC, no NSDistributedNotificationCenter, no file-less

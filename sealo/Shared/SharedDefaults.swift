@@ -12,7 +12,7 @@ import FamilyControls
 /// constants. We use `Codable` round-tripping rather than individual
 /// keys to keep the data model centralized and versionable.
 public enum SharedDefaults {
-    public static let suiteName = "group.io.moxordo.divingbell"
+    public static let suiteName = "group.io.moxordo.sealo"
 
     private static var suite: UserDefaults {
         UserDefaults(suiteName: suiteName) ?? .standard
@@ -21,12 +21,12 @@ public enum SharedDefaults {
     // MARK: - Keys
 
     private enum Key {
-        static let dailyBudget = "divingbell.dailyBudget"
-        static let schedule = "divingbell.schedule"
-        static let appSelection = "divingbell.appSelection"
-        static let lastThresholdUpdate = "divingbell.lastThresholdUpdate"
-        static let isShieldArmed = "divingbell.isShieldArmed"
-        static let consumedDives = "divingbell.consumedDives"
+        static let dailyBudget = "sealo.dailyBudget"
+        static let schedule = "sealo.schedule"
+        static let appSelection = "sealo.appSelection"
+        static let lastThresholdUpdate = "sealo.lastThresholdUpdate"
+        static let isShieldArmed = "sealo.isShieldArmed"
+        static let consumedDives = "sealo.consumedDives"
     }
 
     // MARK: - Schedule

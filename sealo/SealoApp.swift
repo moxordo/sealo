@@ -1,9 +1,9 @@
 import SwiftUI
 
 @main
-struct DivingbellApp: App {
+struct SealoApp: App {
     @State private var store: AppStore
-    @AppStorage("divingbell.isOnboarded") private var isOnboarded = false
+    @AppStorage("sealo.isOnboarded") private var isOnboarded = false
 
     init() {
         let schedule = SharedDefaults.loadSchedule()

@@ -144,19 +144,19 @@ separate distribution target or a separate app.
 **Why:** Single binary is simpler to ship, simpler to install on the
 user's phone, and the gallery never ships to end users anyway. Splitting
 it into its own target would be premature.
-**If it flips:** Extract `divingbellGallery` as a second app target
+**If it flips:** Extract `sealoGallery` as a second app target
 reading the same design-system module. Mechanical refactor.
 
 ---
 
-## A10 — Bundle identifier
+## A10 — Bundle identifier (promoted to D8 on 2026-04-15)
 
 **Assumption:** The app's bundle identifier will be
-`io.moxordo.divingbell`, matching the existing `/Users/andy/moxordo/`
+`io.moxordo.sealo`, matching the existing `/Users/andy/moxordo/`
 workspace convention on the user's machine.
 
 **Stated:** 2026-04-11
-**Why:** Convenience — matches the directory path. Not verified.
-**If it flips:** Trivial change in the Xcode project settings; must be
-done before the Family Controls entitlement application because the
-entitlement binds to the bundle ID.
+**Promoted:** 2026-04-15 → `D8` in `03-confirmations.md`.
+**Why:** The rebrand from divingbell to Sealo made the bundle ID a
+first-class ratified decision rather than a convenience assumption.
+See `D8` for the full rationale.

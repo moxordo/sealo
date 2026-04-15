@@ -14,10 +14,10 @@ public final class RealScreenTimeService: ScreenTimeService, @unchecked Sendable
     private let store = ManagedSettingsStore()
 
     /// The `DeviceActivityName` for our daily monitoring schedule.
-    nonisolated(unsafe) private static let activityName = DeviceActivityName("divingbell.daily")
+    nonisolated(unsafe) private static let activityName = DeviceActivityName("sealo.daily")
 
     /// The `DeviceActivityEvent.Name` for the 1-sec "dive started" trigger.
-    nonisolated(unsafe) private static let diveStartedEvent = DeviceActivityEvent.Name("divingbell.diveStarted")
+    nonisolated(unsafe) private static let diveStartedEvent = DeviceActivityEvent.Name("sealo.diveStarted")
 
     public init() {}
 

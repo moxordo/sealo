@@ -1,5 +1,5 @@
 import XCTest
-@testable import divingbell
+@testable import sealo
 
 /// Exhaustive reducer tests for `AppStore`.
 ///

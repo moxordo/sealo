@@ -51,8 +51,8 @@ navigate without reading the full rationale.
 
 ### M0 — Rule files + test harness (no product code yet)
 - [ ] `CLAUDE.md` + `docs/00`–`docs/05` populated and reviewed.
-- [ ] Xcode workspace: `divingbell` app target, `divingbellTests`,
-      `divingbellUITests`.
+- [ ] Xcode workspace: `sealo` app target, `sealoTests`,
+      `sealoUITests`.
 - [ ] SPM deps: `swift-snapshot-testing`, `GRDB.swift`.
 - [ ] `scripts/test.sh` runs `xcodebuild test` headless, writes an
       `.xcresult` bundle.
@@ -115,7 +115,7 @@ navigate without reading the full rationale.
 ## Target file tree (after M5)
 
 ```
-divingbell/
+sealo/
 ├── CLAUDE.md
 ├── docs/
 │   ├── 00-intentions.md
@@ -126,9 +126,9 @@ divingbell/
 │   └── 05-feasibility-notes.md
 ├── scripts/
 │   └── test.sh                          # agent-runnable test driver
-├── divingbell.xcworkspace
-├── divingbell/                          # main app target
-│   ├── DivingbellApp.swift
+├── sealo.xcworkspace
+├── sealo/                          # main app target
+│   ├── SealoApp.swift
 │   ├── Domain/
 │   │   ├── DiveSession.swift
 │   │   ├── DailyBudget.swift
@@ -155,12 +155,12 @@ divingbell/
 │   │   ├── DiveHistory/
 │   │   └── Gallery/                     # debug-only tab
 │   └── Extensions/                      # shared helpers
-├── divingbellMonitor/                   # DeviceActivityMonitor ext (M3)
-├── divingbellShieldConfig/              # ShieldConfigurationExtension (M5)
-├── divingbellShieldAction/              # ShieldActionExtension (M5)
-├── divingbellWidget/                    # WidgetKit + Live Activity (M4)
-├── divingbellTests/                     # Swift Testing / XCTest
-└── divingbellUITests/                   # XCUITest
+├── sealoMonitor/                   # DeviceActivityMonitor ext (M3)
+├── sealoShieldConfig/              # ShieldConfigurationExtension (M5)
+├── sealoShieldAction/              # ShieldActionExtension (M5)
+├── sealoWidget/                    # WidgetKit + Live Activity (M4)
+├── sealoTests/                     # Swift Testing / XCTest
+└── sealoUITests/                   # XCUITest
 ```
 
 ---
@@ -219,7 +219,7 @@ animated in a vibrant-but-controlled teal gradient. One SwiftUI view
  │   ◎ ◎ ◎ ◎ ○ ○                                      │
  │                                                    │
  │   ────────────────────────────────────────         │
- │              ⟶  Tap to open divingbell             │
+ │              ⟶  Tap to open sealo             │
  ╰────────────────────────────────────────────────────╯
 ```
 - `.leading` — full-width battery, fill animates 0 → current over ~400
@@ -228,7 +228,7 @@ animated in a vibrant-but-controlled teal gradient. One SwiftUI view
 - `.center` — session details + dive-count dots (`◎` done, fourth dot
   pulses = current, `○` budgeted).
 - `.bottom` — divider + tap-to-open hint.
-- `.widgetURL(URL(string: "divingbell://dive/current"))` wraps the
+- `.widgetURL(URL(string: "sealo://dive/current"))` wraps the
   entire activity — any tap deep-links. No `Button(intent:)`, no App
   Intents extension in v1.
 

@@ -33,11 +33,11 @@ public enum AppEvent: Equatable, Sendable {
 @Observable
 public final class AppStore {
     public private(set) var state: OxygenState
-    public let clock: any DivingbellClock
+    public let clock: any SealoClock
 
     public init(
         schedule: Schedule = Schedule(),
-        clock: any DivingbellClock = SystemClock()
+        clock: any SealoClock = SystemClock()
     ) {
         self.clock = clock
         let now = clock.now
@@ -52,7 +52,7 @@ public final class AppStore {
     }
 
     /// Convenience initializer for tests that need full control.
-    public init(state: OxygenState, clock: any DivingbellClock) {
+    public init(state: OxygenState, clock: any SealoClock) {
         self.state = state
         self.clock = clock
     }

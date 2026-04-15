@@ -1,4 +1,4 @@
-name: divingbell
+name: sealo
 
 options:
   bundleIdPrefix: io.moxordo
@@ -32,90 +32,90 @@ settings:
       ENABLE_TESTABILITY: YES
 
 targets:
-  divingbell:
+  sealo:
     type: application
     platform: iOS
     sources:
-      - path: divingbell
+      - path: sealo
     dependencies:
-      - target: divingbellMonitor
+      - target: sealoMonitor
         embed: true
         codeSign: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell
-        PRODUCT_NAME: divingbell
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo
+        PRODUCT_NAME: sealo
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_CFBundleDisplayName: divingbell
+        INFOPLIST_KEY_CFBundleDisplayName: Sealo
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"   # iPhone only
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
-        CODE_SIGN_ENTITLEMENTS: divingbell/divingbell.entitlements
+        CODE_SIGN_ENTITLEMENTS: sealo/sealo.entitlements
 
-  divingbellMonitor:
+  sealoMonitor:
     type: app-extension
     platform: iOS
     sources:
-      - path: divingbellMonitor
+      - path: sealoMonitor
       # Include Domain types so the extension can use DailyBudget
       # accounting logic (fillFraction, shouldPreArmShield, etc.)
       # and SharedState for App Group IPC.
-      - path: divingbell/Domain
-      - path: divingbell/Shared
+      - path: sealo/Domain
+      - path: sealo/Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.monitor
-        PRODUCT_NAME: divingbellMonitor
-        PRODUCT_MODULE_NAME: divingbellMonitor
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.monitor
+        PRODUCT_NAME: sealoMonitor
+        PRODUCT_MODULE_NAME: sealoMonitor
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: divingbellMonitor/Info.plist
-        CODE_SIGN_ENTITLEMENTS: divingbellMonitor/divingbellMonitor.entitlements
+        INFOPLIST_FILE: sealoMonitor/Info.plist
+        CODE_SIGN_ENTITLEMENTS: sealoMonitor/sealoMonitor.entitlements
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         SKIP_INSTALL: YES
 
-  divingbellTests:
+  sealoTests:
     type: bundle.unit-test
     platform: iOS
     sources:
-      - path: divingbellTests
+      - path: sealoTests
     dependencies:
-      - target: divingbell
+      - target: sealo
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.tests
-        PRODUCT_NAME: divingbellTests
-        PRODUCT_MODULE_NAME: divingbellTests
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.tests
+        PRODUCT_NAME: sealoTests
+        PRODUCT_MODULE_NAME: sealoTests
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: "$(TEST_HOST)"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/divingbell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/divingbell"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/sealo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/sealo"
 
-  divingbellUITests:
+  sealoUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
-      - path: divingbellUITests
+      - path: sealoUITests
     dependencies:
-      - target: divingbell
+      - target: sealo
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.divingbell.uitests
-        PRODUCT_NAME: divingbellUITests
-        PRODUCT_MODULE_NAME: divingbellUITests
+        PRODUCT_BUNDLE_IDENTIFIER: io.moxordo.sealo.uitests
+        PRODUCT_NAME: sealoUITests
+        PRODUCT_MODULE_NAME: sealoUITests
         GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: divingbell
+        TEST_TARGET_NAME: sealo
 
 schemes:
-  divingbell:
+  sealo:
     build:
       targets:
-        divingbell: all
-        divingbellTests: [test]
-        divingbellUITests: [test]
+        sealo: all
+        sealoTests: [test]
+        sealoUITests: [test]
     run:
       config: Debug
       commandLineArguments: {}
@@ -123,8 +123,8 @@ schemes:
     test:
       config: Debug
       targets:
-        - divingbellTests
-        - divingbellUITests
+        - sealoTests
+        - sealoUITests
       gatherCoverageData: true
       coverageTargets:
-        - divingbell
+        - sealo

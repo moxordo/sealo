@@ -60,7 +60,7 @@ public enum ThresholdLadder {
         forMaxMinutes maxMinutes: Int
     ) -> [(name: DeviceActivityEvent.Name, threshold: DateComponents)] {
         rungs(forMaxMinutes: maxMinutes).map { minutes in
-            let name = DeviceActivityEvent.Name("divingbell.threshold.\(minutes)m")
+            let name = DeviceActivityEvent.Name("sealo.threshold.\(minutes)m")
             var dc = DateComponents()
             dc.minute = minutes
             return (name: name, threshold: dc)

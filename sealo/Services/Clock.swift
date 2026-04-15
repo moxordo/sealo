@@ -6,7 +6,7 @@ import Foundation
 /// `SystemClock` is the prod implementation. `FakeClock` lets tests
 /// advance time manually and deterministically. Per `CLAUDE.md`:
 /// "Never call `Date()` directly in domain code."
-public protocol DivingbellClock: Sendable {
+public protocol SealoClock: Sendable {
     /// The current date/time.
     var now: Date { get }
 }
@@ -14,7 +14,7 @@ public protocol DivingbellClock: Sendable {
 // MARK: - SystemClock (prod)
 
 /// Wraps `Date()` for production use.
-public struct SystemClock: DivingbellClock, Sendable {
+public struct SystemClock: SealoClock, Sendable {
     public init() {}
     public var now: Date { Date() }
 }
@@ -30,7 +30,7 @@ public struct SystemClock: DivingbellClock, Sendable {
 /// clock.advance(by: 300)  // 5 minutes later
 /// // ... assert state ...
 /// ```
-public final class FakeClock: DivingbellClock, @unchecked Sendable {
+public final class FakeClock: SealoClock, @unchecked Sendable {
     private var _now: Date
 
     public init(now: Date = Date(timeIntervalSinceReferenceDate: 0)) {

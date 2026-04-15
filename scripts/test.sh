@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# scripts/test.sh — canonical headless test driver for divingbell.
+# scripts/test.sh — canonical headless test driver for sealo.
 #
 # This is the load-bearing feedback loop for the builder agent.
 # Every iteration runs this script; an iteration that doesn't exit 0
@@ -8,7 +8,7 @@
 # and .claude/rules/docs-sync.md.
 #
 # What it does, in order:
-#   1. Regenerate divingbell.xcodeproj from project.yml via xcodegen.
+#   1. Regenerate sealo.xcodeproj from project.yml via xcodegen.
 #      (We git-ignore the .xcodeproj; project.yml is the source of truth.)
 #   2. Wipe any previous build/latest.xcresult so results are fresh.
 #   3. Run `xcodebuild test` against an iOS simulator destination.
@@ -25,8 +25,8 @@
 # Environment knobs (all optional):
 #   SIMULATOR_NAME   device name to use, default auto-pick latest iPhone
 #   SIMULATOR_OS     runtime version pin, default latest available
-#   SCHEME           Xcode scheme, default "divingbell"
-#   PROJECT          Xcode project path, default "divingbell.xcodeproj"
+#   SCHEME           Xcode scheme, default "sealo"
+#   PROJECT          Xcode project path, default "sealo.xcodeproj"
 #   RESULT_BUNDLE    path to write xcresult, default "build/latest.xcresult"
 #   XCODEGEN         path to xcodegen binary, default auto-detect
 #   VERBOSE          set to 1 to stream full xcodebuild output
@@ -45,8 +45,8 @@ set -u
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-SCHEME="${SCHEME:-divingbell}"
-PROJECT="${PROJECT:-divingbell.xcodeproj}"
+SCHEME="${SCHEME:-sealo}"
+PROJECT="${PROJECT:-sealo.xcodeproj}"
 RESULT_BUNDLE="${RESULT_BUNDLE:-build/latest.xcresult}"
 VERBOSE="${VERBOSE:-0}"
 

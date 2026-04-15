@@ -1,6 +1,6 @@
 import XCTest
 import SwiftUI
-@testable import divingbell
+@testable import sealo
 
 /// M0 render canary for OxygenTankGauge.
 ///

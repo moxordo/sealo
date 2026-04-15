@@ -3,7 +3,7 @@ import XCTest
 /// M0 UI canary. Launches the app and confirms it reaches foreground.
 /// Real XCUITest coverage lands in later milestones once there are
 /// actual flows to drive.
-final class DivingbellUITests: XCTestCase {
+final class SealoUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
     }

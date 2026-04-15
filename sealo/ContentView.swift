@@ -9,7 +9,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Text("divingbell")
+            Text("Sealo")
                 .font(.title2.weight(.semibold))
 
             // Gauge driven by the reducer's fill fraction.

@@ -18,7 +18,7 @@ import Foundation
 ///
 /// The main app reconciles its `AppStore` state from `SharedDefaults`
 /// on every `.appBecameActive` event.
-class DivingbellMonitor: DeviceActivityMonitor {
+class SealoMonitor: DeviceActivityMonitor {
 
     private let store = ManagedSettingsStore()
 
@@ -55,14 +55,14 @@ class DivingbellMonitor: DeviceActivityMonitor {
         let eventName = event.rawValue
 
         // Parse the threshold minute from the event name.
-        // Format: "divingbell.threshold.Nm" where N is the minute count.
-        // Special case: "divingbell.diveStarted" for the 1-sec trigger.
-        if eventName == "divingbell.diveStarted" {
+        // Format: "sealo.threshold.Nm" where N is the minute count.
+        // Special case: "sealo.diveStarted" for the 1-sec trigger.
+        if eventName == "sealo.diveStarted" {
             handleDiveStarted()
             return
         }
 
-        guard eventName.hasPrefix("divingbell.threshold."),
+        guard eventName.hasPrefix("sealo.threshold."),
               let minuteStr = eventName.split(separator: ".").last?.dropLast(), // drop "m"
               let minutes = Int(minuteStr)
         else { return }

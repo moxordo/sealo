@@ -60,10 +60,10 @@ struct OnboardingView: View {
             OxygenTankGauge(fill: 1.0)
                 .frame(width: 200, height: 90)
 
-            Text("divingbell")
+            Text("Sealo")
                 .font(.largeTitle.weight(.bold))
 
-            Text("Track your time in social media like a diver tracks oxygen. Set a daily budget, and divingbell enforces it.")
+            Text("Track your time in social media like a diver tracks oxygen. Set a daily budget, and Sealo enforces it.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -88,7 +88,7 @@ struct OnboardingView: View {
             Text("Screen Time access")
                 .font(.title2.weight(.semibold))
 
-            Text("divingbell needs Screen Time permission to monitor which apps you use and enforce your dive budget. This data stays on your device.")
+            Text("Sealo needs Screen Time permission to monitor which apps you use and enforce your dive budget. This data stays on your device.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -146,7 +146,7 @@ struct OnboardingView: View {
             Text("You're ready to dive")
                 .font(.title2.weight(.semibold))
 
-            Text("Your tank is full. divingbell is now monitoring your selected apps.")
+            Text("Your tank is full. Sealo is now monitoring your selected apps.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

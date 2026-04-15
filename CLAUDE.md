@@ -1,4 +1,4 @@
-# divingbell
+# Sealo
 
 iPhone app that tracks time spent in a user-chosen set of SNS apps as
 discrete "dive sessions" and visualises the remaining daily oxygen budget
@@ -6,9 +6,22 @@ as a teal-gradient battery-shaped gauge in the Dynamic Island, Lock Screen
 Live Activity, and home-screen widget. When oxygen runs out, a
 `ManagedSettings` shield blocks the monitored apps until local midnight.
 
-Codename metaphor: a **diving bell** is a sealed chamber with a finite
-oxygen supply. One dive = one foreground session in a monitored app.
-Running out of oxygen forces you to surface.
+## Metaphor and mascot
+
+**Sealo** is the app's mascot — a playful diving seal with a finite
+breath budget. One dive = one foreground session in a monitored app.
+Running out of breath forces Sealo (and the user) to resurface.
+
+Two visual layers, each optimised for a different job (see `D5`):
+- **Battery silhouette gauge** for glanceable surfaces (Dynamic Island,
+  Lock Screen Live Activity, home-screen widget). Instant read,
+  sub-100 ms recognition.
+- **Sealo character** for in-app surfaces (dashboard, onboarding,
+  shield screen, notifications). Emotional companion layer.
+
+Tone (per `D7`): Sealo never expresses negative emotions toward the
+user. Gets tired, not angry. Celebrates resurfacing, never shames
+hitting the limit. Closer to Headspace than Duolingo.
 
 ---
 

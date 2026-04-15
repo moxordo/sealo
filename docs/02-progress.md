@@ -13,11 +13,23 @@ real-device testing (requires portal setup, NOT Apple review).
 **Gate:** on a real device, a scheduled dive fires a real threshold
 callback, the reducer advances, and the shield engages.
 **Prerequisite status:**
-- Apple Developer enrollment: done
-- Family Controls *development capability*: user enabling in portal
-  (instant checkbox, no review needed — see 05-feasibility-notes.md)
-- App Group ID creation: user creating in portal (instant)
+- Apple Developer enrollment: done (2026-04-14)
+- App ID `io.moxordo.sealo` + `io.moxordo.sealo.monitor` with
+  Family Controls capability: user creating in portal
+- App Group `group.io.moxordo.sealo`: user creating in portal
 - Family Controls *distribution entitlement*: NOT needed until M6
+
+### Notes from this iteration (2026-04-15)
+- **Rebrand: divingbell → Sealo.** Ratified as `D8`. Character-
+  driven identity replaces the sealed-chamber metaphor. Battery
+  silhouette gauge preserved for glanceable surfaces (`D5` amended
+  to reflect combined approach). Mascot tone guardrail ratified as
+  `D7` (Sealo never expresses negative emotions toward the user).
+- Bundle IDs, directory names, Swift identifiers, App Group, scheme
+  name, URL scheme all renamed in a single migration commit.
+- GitHub repo renamed `moxordo/divingbell` → `moxordo/sealo`.
+- Portal IDs the user will create use the new names from day one,
+  so no Apple-side rename needed.
 
 > M1 (design system + gallery) still deferred. Will land after M3 or
 > in parallel with M4.
@@ -73,8 +85,8 @@ runnable in simulator with fake dive controls.
 - Nothing.
 
 ### Deviations from `01-plan.md`
-- **Workspace deferred.** `01-plan.md` lists `divingbell.xcworkspace` in
-  the target file tree. M0 ships only a `divingbell.xcodeproj` because a
+- **Workspace deferred.** `01-plan.md` lists `sealo.xcworkspace` in
+  the target file tree. M0 ships only a `sealo.xcodeproj` because a
   workspace earns its keep only when you have multiple sibling projects
   (e.g., SPM packages as separate projects). With one project it adds
   clutter for zero benefit. Promote to a workspace in M1 if needed.
@@ -138,6 +150,6 @@ _None yet._
 - Draft a manual real-device test-plan document as M3 approaches. Should
   cover: picker flow, threshold callback visible in Console.app, shield
   applies, shield dismisses at midnight rollover.
-- Consider publishing a short "how divingbell measures time" explainer
+- Consider publishing a short "how sealo measures time" explainer
   once dead reckoning is live, so users understand why the gauge snaps
   on updates.
