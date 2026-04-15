@@ -25,6 +25,8 @@ class SealoMonitor: DeviceActivityMonitor {
     // MARK: - DeviceActivityMonitor callbacks
 
     override func intervalDidStart(for activity: DeviceActivityName) {
+        Log.monitor.notice("intervalDidStart for \(activity.rawValue)")
+
         // New monitoring interval started (typically at midnight).
         // Reset the daily budget in shared state.
         let schedule = SharedDefaults.loadSchedule()
@@ -43,7 +45,7 @@ class SealoMonitor: DeviceActivityMonitor {
     }
 
     override func intervalDidEnd(for activity: DeviceActivityName) {
-        // Interval ended. Disarm shield.
+        Log.monitor.notice("intervalDidEnd for \(activity.rawValue)")
         store.shield.applications = nil
         SharedDefaults.isShieldArmed = false
     }
@@ -53,6 +55,7 @@ class SealoMonitor: DeviceActivityMonitor {
         activity: DeviceActivityName
     ) {
         let eventName = event.rawValue
+        Log.monitor.notice("eventDidReachThreshold: \(eventName) (activity=\(activity.rawValue))")
 
         // Parse the threshold minute from the event name.
         // Format: "sealo.threshold.Nm" where N is the minute count.
@@ -65,13 +68,16 @@ class SealoMonitor: DeviceActivityMonitor {
         guard eventName.hasPrefix("sealo.threshold."),
               let minuteStr = eventName.split(separator: ".").last?.dropLast(), // drop "m"
               let minutes = Int(minuteStr)
-        else { return }
+        else {
+            Log.monitor.error("unrecognised event name: \(eventName)")
+            return
+        }
 
         handleThresholdReached(totalMinutes: minutes)
     }
 
     override func intervalWillEndWarning(for activity: DeviceActivityName) {
-        // Optional: could fire a notification here. Not used in M3.
+        Log.monitor.notice("intervalWillEndWarning for \(activity.rawValue)")
     }
 
     // MARK: - Handlers
@@ -80,32 +86,34 @@ class SealoMonitor: DeviceActivityMonitor {
         let count = SharedDefaults.consumedDives + 1
         SharedDefaults.consumedDives = count
         SharedDefaults.lastThresholdUpdate = Date()
+        Log.monitor.notice("handleDiveStarted: count=\(count)")
 
-        // Load budget and update dive count.
         if var budget = SharedDefaults.loadDailyBudget() {
             budget.consumedDives = count
             SharedDefaults.saveDailyBudget(budget)
 
-            // Check if dive count alone triggers shield.
             if budget.isExhausted || budget.shouldPreArmShield {
                 armShield()
             }
+        } else {
+            Log.monitor.error("handleDiveStarted: no daily budget in SharedDefaults")
         }
     }
 
     private func handleThresholdReached(totalMinutes: Int) {
         let now = Date()
         SharedDefaults.lastThresholdUpdate = now
+        Log.monitor.notice("handleThresholdReached: totalMinutes=\(totalMinutes)")
 
-        // Snap consumed time to the authoritative OS value.
         if var budget = SharedDefaults.loadDailyBudget() {
             budget.consumedSeconds = Double(totalMinutes) * 60.0
             SharedDefaults.saveDailyBudget(budget)
 
-            // Check if we should arm the shield.
             if budget.isExhausted || budget.shouldPreArmShield {
                 armShield()
             }
+        } else {
+            Log.monitor.error("handleThresholdReached: no daily budget in SharedDefaults")
         }
     }
 

@@ -80,6 +80,17 @@ struct ContentView: View {
 
                 Button("New day") {
                     store.send(.dayRolled)
+                    // Also stop + restart monitoring so iOS's own
+                    // threshold-crossing state is wiped. Without this,
+                    // iOS remembers the 1-sec dive-started threshold
+                    // was already crossed today and re-fires it
+                    // immediately on the next app foreground, making
+                    // our "fresh day" state pop back to used.
+                    Task {
+                        let service = RealScreenTimeService()
+                        try? await service.stopMonitoring()
+                        try? await service.startMonitoring()
+                    }
                 }
                 .buttonStyle(.bordered)
             }

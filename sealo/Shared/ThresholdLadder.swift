@@ -14,44 +14,80 @@ import DeviceActivity
 /// starts. Each rung fires exactly once per monitoring interval.
 public enum ThresholdLadder {
 
+    /// Maximum total DeviceActivityEvent rungs per schedule. iOS
+    /// caps this around 20; we use 19 to leave headroom for the
+    /// pre-arm rung that gets inserted separately.
+    private static let maxRungs = 19
+
     /// Generate a ladder of minute thresholds for a given budget.
     ///
-    /// Strategy: sparse early (every 5 min), dense near the ceiling
-    /// (every 1 min in the last 10 min). Total rungs stay under 20.
+    /// Strategy — density-weighted for real SNS usage patterns:
+    /// - **Dense early** (1-min precision for minutes 1..5): most
+    ///   user sessions are short, so the gauge should feel
+    ///   responsive in the first few minutes of a dive.
+    /// - **Sparse middle** (every 5 min): long sessions are less
+    ///   common and users don't need second-by-second precision
+    ///   when they're deep in the dive.
+    /// - **Dense end** (every 1 min for last 5 min): shield-arming
+    ///   timing accuracy matters here, so no coarse rungs allowed.
     ///
-    /// Returns minute values in ascending order.
+    /// Budget-aware: tiny budgets (<10 min) use 1-min everywhere.
+    ///
+    /// Returns minute values in ascending order, no duplicates.
     public static func rungs(forMaxMinutes maxMinutes: Int) -> [Int] {
         guard maxMinutes > 0 else { return [] }
 
-        var result: [Int] = []
+        var rungs: Set<Int> = []
 
-        // 1-second "dive started" rung is handled separately as the
-        // DeviceActivityEvent with a 1-sec threshold. Not included here.
+        // For tiny budgets, just use 1-min everywhere.
+        if maxMinutes <= 10 {
+            for m in 1...maxMinutes {
+                rungs.insert(m)
+            }
+        } else {
+            // Dense early: minutes 1..5.
+            for m in 1...min(5, maxMinutes) {
+                rungs.insert(m)
+            }
 
-        // Sparse early phase: every 5 minutes up to (max - 10).
-        let sparseEnd = max(0, maxMinutes - 10)
-        var t = 5
-        while t <= sparseEnd && result.count < 10 {
-            result.append(t)
-            t += 5
-        }
+            // Sparse middle: every 5 minutes from 10 up to (max - 5).
+            let middleEnd = max(0, maxMinutes - 5)
+            var t = 10
+            while t <= middleEnd {
+                rungs.insert(t)
+                t += 5
+            }
 
-        // Dense tail: every 1 minute in the last 10 minutes.
-        let denseStart = max(1, maxMinutes - 9)
-        for m in denseStart...maxMinutes {
-            if !result.contains(m) && result.count < 19 {
-                result.append(m)
+            // Dense end: minutes (max-4)...max.
+            let denseStart = max(1, maxMinutes - 4)
+            for m in denseStart...maxMinutes {
+                rungs.insert(m)
+            }
+
+            // Pre-arm rung at 95% if not already covered.
+            let preArm = Int(Double(maxMinutes) * 0.95)
+            if preArm > 0 {
+                rungs.insert(preArm)
             }
         }
 
-        // Always include the 95% pre-arm rung if not already present.
-        let preArmMinute = Int(Double(maxMinutes) * 0.95)
-        if preArmMinute > 0 && !result.contains(preArmMinute) && result.count < 20 {
-            result.append(preArmMinute)
-            result.sort()
+        // Cap at maxRungs by pruning middle-density rungs first.
+        var sorted = rungs.sorted()
+        while sorted.count > maxRungs {
+            // Drop the rung with the largest neighbour gap in the
+            // middle section (keeps both dense ends intact).
+            let middleStart = 5
+            let middleEnd = maxMinutes - 5
+            if let victim = sorted.first(where: {
+                $0 > middleStart && $0 < middleEnd
+            }) {
+                sorted.removeAll { $0 == victim }
+            } else {
+                sorted.removeLast()
+            }
         }
 
-        return result
+        return sorted
     }
 
     /// Convert minute thresholds into `DeviceActivityEvent.Name` +

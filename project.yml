@@ -24,6 +24,12 @@ settings:
     SWIFT_EMIT_LOC_STRINGS: YES
     ALWAYS_SEARCH_USER_PATHS: NO
     COPY_PHASE_STRIP: NO
+    # Signing team — baked in so xcodegen regeneration doesn't wipe
+    # the manual GUI selection every time. If another developer joins
+    # the project, they override this via an .xcconfig or by replacing
+    # this line with their own team ID. 10-char Apple Team ID from
+    # developer.apple.com/account → Membership.
+    DEVELOPMENT_TEAM: "8F5KY4977A"
     # Concurrency strictness deliberately left at default (minimal).
     # Dial up to "complete" in M2 once real concurrency surface exists;
     # turning it on now would produce warnings that gate the M0 clean build.
@@ -77,6 +83,9 @@ targets:
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         SKIP_INSTALL: YES
+        # Tags FileLogger entries from this target as "monitor"
+        # (vs "app" for the main target). See Log.Channel.source.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MONITOR_EXTENSION"
 
   sealoTests:
     type: bundle.unit-test

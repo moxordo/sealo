@@ -176,16 +176,27 @@ public final class AppStore {
         }
 
         // Fresh budget for the new day.
-        state.dailyBudget = DailyBudget(
+        let fresh = DailyBudget(
             date: now.startOfDay(),
             maxMinutes: state.schedule.maxMinutesPerDay,
             maxDives: state.schedule.maxDivesPerDay
         )
+        state.dailyBudget = fresh
         state.lastThresholdUpdate = nil
+
+        // Persist the fresh budget to SharedDefaults so the monitor
+        // extension and future reconcileWithSharedState() calls see
+        // zeroed counters. Without this, the next foregrounding
+        // re-reads yesterday's stale consumedSeconds/consumedDives
+        // and the UI jumps backward.
+        SharedDefaults.saveDailyBudget(fresh)
+        SharedDefaults.consumedDives = 0
+        SharedDefaults.lastThresholdUpdate = nil
 
         // Disarm shield for the new day.
         if state.isShieldArmed {
             state.isShieldArmed = false
+            SharedDefaults.isShieldArmed = false
             effects.append(.disarmShield)
         }
 
