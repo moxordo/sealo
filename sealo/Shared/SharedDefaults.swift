@@ -25,6 +25,7 @@ public enum SharedDefaults {
         static let schedule = "sealo.schedule"
         static let appSelection = "sealo.appSelection"
         static let lastThresholdUpdate = "sealo.lastThresholdUpdate"
+        static let diveStartedAt = "sealo.diveStartedAt"
         static let isShieldArmed = "sealo.isShieldArmed"
         static let consumedDives = "sealo.consumedDives"
     }
@@ -74,6 +75,14 @@ public enum SharedDefaults {
     public static var lastThresholdUpdate: Date? {
         get { suite.object(forKey: Key.lastThresholdUpdate) as? Date }
         set { suite.set(newValue, forKey: Key.lastThresholdUpdate) }
+    }
+
+    /// When the current dive started. Written by the monitor
+    /// extension on the 1-sec dive-started callback; read by the
+    /// Live Activity and home widget to drive the mm:ss timer.
+    public static var diveStartedAt: Date? {
+        get { suite.object(forKey: Key.diveStartedAt) as? Date }
+        set { suite.set(newValue, forKey: Key.diveStartedAt) }
     }
 
     public static var isShieldArmed: Bool {

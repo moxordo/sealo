@@ -204,22 +204,101 @@ run_once() {
     run_tests
 }
 
+# ------------------------------------------------------------------ full mode
+
+# --full: run everything and produce a structured JSON summary at
+# build/test-summary.json. This is the pre-handoff gate mandated by
+# `.claude/rules/autonomous-testing.md` — the agent runs this before
+# reporting any code change as "done."
+run_full() {
+    preflight
+    regenerate_project
+    run_tests || {
+        write_summary 3 "test suite failed"
+        return 3
+    }
+    write_summary 0 "ok"
+}
+
+# Write build/test-summary.json with structured pass/fail info the
+# agent can read via its Read tool without parsing raw xcresult.
+write_summary() {
+    local status="$1"
+    local msg="$2"
+    mkdir -p build
+
+    # Count test results from the xcresult bundle if present.
+    local passed=0 failed=0 total=0
+    if [[ -d "$RESULT_BUNDLE" ]]; then
+        local json
+        json=$(xcrun xcresulttool get test-results summary \
+            --path "$RESULT_BUNDLE" 2>/dev/null || echo '{}')
+        if [[ -n "$json" ]]; then
+            passed=$(echo "$json" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get('passedTests', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)
+            failed=$(echo "$json" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get('failedTests', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)
+            total=$(echo "$json" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get('totalTestCount', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)
+        fi
+    fi
+
+    # JSON summary. Keep it structurally stable so Claude's Read
+    # tool can trust the shape.
+    cat > build/test-summary.json <<JSONEOF
+{
+  "status": "$(if [[ "$status" == "0" ]]; then echo "pass"; else echo "fail"; fi)",
+  "exit_code": $status,
+  "message": "$msg",
+  "counts": { "total": $total, "passed": $passed, "failed": $failed },
+  "result_bundle": "$RESULT_BUNDLE",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+JSONEOF
+
+    log "summary: $(cat build/test-summary.json | tr -d '\n' | head -c 200)"
+}
+
 # --loop N: run run_once N times, fail on any non-zero.
 # Used for the M2 flakiness gate ("zero flakiness over 100 consecutive runs").
 main() {
-    if [[ "${1:-}" == "--loop" ]]; then
-        local n="${2:-1}"
-        local i
-        for (( i = 1; i <= n; i++ )); do
-            log "loop iteration $i/$n"
-            if ! run_once; then
-                die "flaked on iteration $i/$n" 3
-            fi
-        done
-        log "loop: $n/$n iterations passed"
-    else
-        run_once
-    fi
+    case "${1:-}" in
+        --full)
+            run_full
+            ;;
+        --loop)
+            local n="${2:-1}"
+            local i
+            for (( i = 1; i <= n; i++ )); do
+                log "loop iteration $i/$n"
+                if ! run_once; then
+                    die "flaked on iteration $i/$n" 3
+                fi
+            done
+            log "loop: $n/$n iterations passed"
+            ;;
+        *)
+            run_once
+            ;;
+    esac
 }
 
 main "$@"

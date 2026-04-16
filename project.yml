@@ -47,6 +47,9 @@ targets:
       - target: sealoMonitor
         embed: true
         codeSign: true
+      - target: sealoWidget
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo
@@ -56,6 +59,9 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_CFBundleDisplayName: Sealo
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        # Required for the main app to request Live Activities via
+        # ActivityKit. Without this key, Activity.request() throws.
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"   # iPhone only
         SUPPORTS_MACCATALYST: NO
@@ -86,6 +92,32 @@ targets:
         # Tags FileLogger entries from this target as "monitor"
         # (vs "app" for the main target). See Log.Channel.source.
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MONITOR_EXTENSION"
+
+  sealoWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: sealoWidget
+      # Share domain + shared-state + design-system sources so the
+      # widget can render OxygenTankGauge and read SharedDefaults
+      # without an extra framework target.
+      - path: sealo/Domain
+      - path: sealo/Shared
+      - path: sealo/UI/DesignSystem
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.widget
+        PRODUCT_NAME: sealoWidget
+        PRODUCT_MODULE_NAME: sealoWidget
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: sealoWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: sealoWidget/sealoWidget.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+        # Widget extension compiles the shared Log.Channel, which
+        # needs to know if it's in the "widget" source.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) WIDGET_EXTENSION"
 
   sealoTests:
     type: bundle.unit-test

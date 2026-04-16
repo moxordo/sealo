@@ -13,6 +13,28 @@ struct SealoApp: App {
         self._store = State(initialValue: store)
     }
 
+    /// Keeps the Live Activity in sync with the dashboard's view of
+    /// the world on scene activation. **Only updates**; never starts.
+    /// Starting a Live Activity is owned by the monitor extension
+    /// (which knows the exact moment a real dive begins on a
+    /// monitored app). If the main app also started them, any Sealo
+    /// re-entry would create a phantom dive Live Activity even when
+    /// the user never opened Instagram.
+    private func refreshLiveActivity() async {
+        guard isOnboarded,
+              LiveActivityController.isRunning,
+              let startedAt = store.state.currentDive?.startedAt
+                              ?? SharedDefaults.diveStartedAt
+        else { return }
+
+        let contentState = DiveActivityAttributes.ContentState(
+            from: store.state.dailyBudget,
+            diveStartedAt: startedAt,
+            isShieldArmed: store.state.isShieldArmed
+        )
+        await LiveActivityController.update(contentState)
+    }
+
     private var shouldShowDashboard: Bool {
         #if targetEnvironment(simulator)
         // Simulator can't grant Family Controls authorization, so
@@ -41,6 +63,7 @@ struct SealoApp: App {
             if newPhase == .active {
                 store.reconcileWithSharedState()
                 store.send(.appBecameActive)
+                Task { await refreshLiveActivity() }
             }
         }
     }

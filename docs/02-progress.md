@@ -6,12 +6,31 @@ completed milestones collapse to a one-line summary.
 
 ---
 
-## Current milestone: **M3 — Real Screen Time integration**
+## Current milestone: **M4 — Live Activity + Dynamic Island + widget**
 
-**Status:** code complete, compiles clean, tests pass. Ready for
-real-device testing (requires portal setup, NOT Apple review).
-**Gate:** on a real device, a scheduled dive fires a real threshold
-callback, the reducer advances, and the shield engages.
+**Status:** starting
+**Gate:** on a real device, the Dynamic Island shows the shrinking
+battery within 2 s of dive start; Lock Screen Live Activity shows
+during a dive; home-screen widget updates between dives.
+
+> M5 (custom shield + per-foreground dive counting) and M1 (design
+> system polish + Sealo character art) follow M4. M6 (TestFlight) is
+> the final milestone.
+
+---
+
+## Completed: **M3 — Real Screen Time integration**
+
+**Started:** 2026-04-12 | **Completed:** 2026-04-16
+**Gate met:** verified on user's iPhone 15 Pro (iOS 26.4). Threshold
+callbacks fire, monitor extension loads, dive counting works, gauge
+updates in 1-min decrements with the new ladder density.
+
+> Known limitations carried forward to M5:
+> - Per-foreground dive detection is approximate (1 dive/day via the
+>   once-per-interval threshold). True per-foreground counting needs
+>   the shield-based pattern in M5.
+> - Shield UI is iOS default; Sealo-themed shield screen is M5.
 **Prerequisite status:**
 - Apple Developer enrollment: done (2026-04-14)
 - App ID `com.moxordo.sealo` + `com.moxordo.sealo.monitor` with

@@ -83,14 +83,33 @@ class SealoMonitor: DeviceActivityMonitor {
     // MARK: - Handlers
 
     private func handleDiveStarted() {
+        let now = Date()
         let count = SharedDefaults.consumedDives + 1
         SharedDefaults.consumedDives = count
-        SharedDefaults.lastThresholdUpdate = Date()
+        SharedDefaults.lastThresholdUpdate = now
+        SharedDefaults.diveStartedAt = now
         Log.monitor.notice("handleDiveStarted: count=\(count)")
 
         if var budget = SharedDefaults.loadDailyBudget() {
             budget.consumedDives = count
             SharedDefaults.saveDailyBudget(budget)
+
+            // Start or update the Live Activity. The extension is
+            // the only surface that knows the EXACT moment a dive
+            // begins (user foregrounded a monitored app), so it
+            // owns the `start` action — the main app only updates.
+            let stateSnapshot = DiveActivityAttributes.ContentState(
+                from: budget,
+                diveStartedAt: now,
+                isShieldArmed: SharedDefaults.isShieldArmed
+            )
+            Task { @MainActor in
+                if LiveActivityController.isRunning {
+                    await LiveActivityController.update(stateSnapshot)
+                } else {
+                    LiveActivityController.start(stateSnapshot)
+                }
+            }
 
             if budget.isExhausted || budget.shouldPreArmShield {
                 armShield()
@@ -108,6 +127,17 @@ class SealoMonitor: DeviceActivityMonitor {
         if var budget = SharedDefaults.loadDailyBudget() {
             budget.consumedSeconds = Double(totalMinutes) * 60.0
             SharedDefaults.saveDailyBudget(budget)
+
+            // Update Live Activity with the new gauge fill.
+            let diveStartedAt = SharedDefaults.diveStartedAt ?? now
+            let stateSnapshot = DiveActivityAttributes.ContentState(
+                from: budget,
+                diveStartedAt: diveStartedAt,
+                isShieldArmed: SharedDefaults.isShieldArmed
+            )
+            Task { @MainActor in
+                await LiveActivityController.update(stateSnapshot)
+            }
 
             if budget.isExhausted || budget.shouldPreArmShield {
                 armShield()

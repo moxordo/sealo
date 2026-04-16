@@ -60,16 +60,20 @@ public struct DailyBudget: Codable, Equatable, Sendable {
         max(0, maxDives - consumedDives)
     }
 
-    /// The O₂ fill fraction (0...1) based on the tighter of the two
-    /// limits. This is what the gauge displays.
+    /// The O₂ fill fraction (0...1), representing **time** remaining
+    /// in the daily budget only. Dive count is surfaced separately
+    /// via the dot row in Live Activity + Lock Screen (`◎ ◎ ○ ○`).
+    ///
+    /// Previously this was `min(timeFraction, diveFraction)` so a
+    /// single dive would drop the gauge by 1/maxDives even with zero
+    /// time used (e.g. 83% gauge after 1 of 6 dives with 0 min spent).
+    /// That conflated "oxygen/breath" with "dive count" — two
+    /// distinct mental-model concepts. Oxygen = time remaining.
+    /// Dive count is shown as dots. Both still gate the shield
+    /// independently via `isExhausted`.
     public var fillFraction: Double {
-        let timeFraction = maxMinutes > 0
-            ? max(0, 1.0 - consumedMinutes / Double(maxMinutes))
-            : 0
-        let diveFraction = maxDives > 0
-            ? max(0, 1.0 - Double(consumedDives) / Double(maxDives))
-            : 0
-        return min(timeFraction, diveFraction)
+        guard maxMinutes > 0 else { return 0 }
+        return max(0, 1.0 - consumedMinutes / Double(maxMinutes))
     }
 
     /// True when either limit is hit. Per `D3`, this triggers the

@@ -27,10 +27,15 @@ hitting the limit. Closer to Headspace than Duolingo.
 
 ## Ground rules for every Claude Code session
 
-**Load-bearing rule — follow on every iteration:**
+**Load-bearing rules — follow on every iteration:**
 - `.claude/rules/docs-sync.md` — the pre-iteration / during / post-iteration
   protocol that keeps code and `docs/` in sync. Not optional. Read it at
   the start of every session before touching any non-read tool.
+- `.claude/rules/autonomous-testing.md` — the fakable/unfakable iOS
+  taxonomy and the `./scripts/test.sh --full` pre-handoff gate. Every
+  code change I hand back must have been verified by me against
+  the simulator-testable surface first. Device round-trips are reserved
+  for the ~20 % of changes that touch iOS behavior no simulator can fake.
 
 **Read before writing code (always):**
 - `docs/00-intentions.md` — what the user asked for, in their words

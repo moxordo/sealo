@@ -35,6 +35,8 @@ public enum Log {
         private var source: String {
             #if MONITOR_EXTENSION
             return "monitor"
+            #elseif WIDGET_EXTENSION
+            return "widget"
             #else
             return "app"
             #endif

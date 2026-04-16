@@ -2,46 +2,147 @@ import XCTest
 import SwiftUI
 @testable import sealo
 
-/// M0 render canary for OxygenTankGauge.
+/// Pixel-diff snapshot tests for `OxygenTankGauge`.
 ///
-/// Proves: the view compiles, instantiates, and renders in a hosting
-/// controller without crashing. This is the M0-level assertion. M1
-/// replaces this with pixel-diff snapshot tests via swift-snapshot-testing
-/// once the SPM / Xcode 26 module compatibility issue is resolved.
-final class OxygenTankGaugeRenderTests: XCTestCase {
-    @MainActor
-    func test_oxygenTankGauge_rendersAtVariousFillLevels() {
-        for fill in [0.0, 0.25, 0.5, 0.75, 1.0] {
-            let view = OxygenTankGauge(fill: fill)
-                .frame(width: 240, height: 110)
+/// Covers the gauge at every fill level we care about (0, 25, 50,
+/// 75, 100 %) across the size range where it's actually used —
+/// Dynamic Island minimal (~18 pt), compact (~22 pt), widget small
+/// (~120 pt), Lock Screen card (~72 pt), dashboard hero (~260 pt) —
+/// in both light and dark color schemes.
+///
+/// First run per test records a baseline PNG in
+/// `sealoTests/__Snapshots__/`. Subsequent runs pixel-diff against
+/// it. Intentional visual changes require deleting the baseline and
+/// re-running.
+///
+/// Replaces the M0 `OxygenTankGaugeRenderTests` — snapshot tests
+/// subsume the "does it render without crashing" assertion while
+/// also catching visual regressions.
+@MainActor
+final class OxygenTankGaugeSnapshotTests: XCTestCase {
 
-            let host = UIHostingController(rootView: view)
+    // MARK: - Fill levels at the canonical dashboard size
 
-            // Proving the view compiles, instantiates, and can be
-            // hosted is the M0-level assertion. Bounds/size assertions
-            // need a window hierarchy; pixel-diff assertions need
-            // swift-snapshot-testing. Both land in M1.
-            XCTAssertNotNil(
-                host.view,
-                "OxygenTankGauge should render at fill=\(fill)"
-            )
-        }
+    func test_gauge_fill_0_light() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.0),
+            as: "gauge-dashboard-fill000",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
     }
 
-    @MainActor
-    func test_oxygenTankGauge_clampsOutOfRangeValues() {
-        // Values outside 0...1 should clamp, not crash.
-        for fill in [-0.5, 1.5, -100.0, 999.0] {
-            let view = OxygenTankGauge(fill: fill)
-                .frame(width: 120, height: 55)
+    func test_gauge_fill_25_light() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.25),
+            as: "gauge-dashboard-fill025",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
+    }
 
-            let host = UIHostingController(rootView: view)
-            host.view.layoutIfNeeded()
+    func test_gauge_fill_50_light() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.5),
+            as: "gauge-dashboard-fill050",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
+    }
 
-            XCTAssertNotNil(
-                host.view,
-                "OxygenTankGauge should not crash at fill=\(fill)"
-            )
-        }
+    func test_gauge_fill_75_light() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.75),
+            as: "gauge-dashboard-fill075",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
+    }
+
+    func test_gauge_fill_100_light() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 1.0),
+            as: "gauge-dashboard-fill100",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
+    }
+
+    // MARK: - Dark-mode spot checks
+
+    func test_gauge_fill_50_dark() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.5),
+            as: "gauge-dashboard-fill050",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .dark
+        )
+    }
+
+    func test_gauge_fill_0_dark() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.0),
+            as: "gauge-dashboard-fill000",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .dark
+        )
+    }
+
+    // MARK: - Size-scaling invariant
+
+    func test_gauge_dynamicIslandMinimal() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.67),
+            as: "gauge-dynamic-island-minimal",
+            size: CGSize(width: 18, height: 10),
+            colorScheme: .light
+        )
+    }
+
+    func test_gauge_dynamicIslandCompactLeading() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.67),
+            as: "gauge-dynamic-island-compact",
+            size: CGSize(width: 22, height: 12),
+            colorScheme: .light
+        )
+    }
+
+    func test_gauge_widgetSmall() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.67),
+            as: "gauge-widget-small",
+            size: CGSize(width: 120, height: 28),
+            colorScheme: .light
+        )
+    }
+
+    func test_gauge_lockScreenCard() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 0.67),
+            as: "gauge-lock-screen",
+            size: CGSize(width: 72, height: 32),
+            colorScheme: .light
+        )
+    }
+
+    // MARK: - Out-of-range clamp sanity
+
+    func test_gauge_clamp_negative() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: -0.5),
+            as: "gauge-clamp-negative",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
+    }
+
+    func test_gauge_clamp_over_one() {
+        SnapshotTesting.assertSnapshot(
+            of: OxygenTankGauge(fill: 1.5),
+            as: "gauge-clamp-over-one",
+            size: CGSize(width: 260, height: 120),
+            colorScheme: .light
+        )
     }
 }

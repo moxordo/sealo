@@ -192,6 +192,13 @@ public final class AppStore {
         SharedDefaults.saveDailyBudget(fresh)
         SharedDefaults.consumedDives = 0
         SharedDefaults.lastThresholdUpdate = nil
+        SharedDefaults.diveStartedAt = nil
+
+        // End any Live Activity from yesterday so the Lock Screen
+        // / Dynamic Island isn't showing stale state when a new day
+        // begins. A fresh activity will be started on next app
+        // launch or scene-activation.
+        Task { await LiveActivityController.endAll() }
 
         // Disarm shield for the new day.
         if state.isShieldArmed {

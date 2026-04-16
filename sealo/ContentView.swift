@@ -54,10 +54,11 @@ struct ContentView: View {
     @ViewBuilder
     private var fakeControls: some View {
         VStack(spacing: 12) {
-            Text("Simulate (M2)")
+            Text("Simulate (debug)")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
 
+            // Reducer + dashboard state controls (from M2).
             HStack(spacing: 16) {
                 Button(store.state.isDiving ? "End dive" : "Start dive") {
                     if store.state.isDiving {
@@ -65,6 +66,7 @@ struct ContentView: View {
                     } else {
                         store.send(.screenTime(.diveStarted))
                     }
+                    syncLiveActivity()
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(store.state.isDiving ? .red : .teal)
@@ -74,6 +76,7 @@ struct ContentView: View {
                     store.send(.screenTime(.thresholdReached(
                         totalMinutes: Int(store.state.dailyBudget.consumedMinutes) + 1
                     )))
+                    syncLiveActivity()
                 }
                 .buttonStyle(.bordered)
                 .disabled(!store.state.isDiving)
@@ -98,11 +101,59 @@ struct ContentView: View {
             if store.state.isDiving {
                 Button("Tick (dead reckon)") {
                     store.send(.tick)
+                    syncLiveActivity()
                 }
                 .buttonStyle(.bordered)
                 .font(.caption)
             }
+
+            // M4 Live Activity preview controls. Works in the
+            // simulator, which can render Live Activities even
+            // though it can't do real Screen Time accounting.
+            Divider().padding(.vertical, 4)
+
+            Text("Live Activity (M4 preview)")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+
+            HStack(spacing: 16) {
+                Button("Start LA") {
+                    let startedAt = store.state.currentDive?.startedAt
+                                  ?? Date()
+                    let state = DiveActivityAttributes.ContentState(
+                        from: store.state.dailyBudget,
+                        diveStartedAt: startedAt,
+                        isShieldArmed: store.state.isShieldArmed
+                    )
+                    LiveActivityController.start(state)
+                }
+                .buttonStyle(.bordered)
+
+                Button("Update LA") {
+                    syncLiveActivity()
+                }
+                .buttonStyle(.bordered)
+
+                Button("End LA") {
+                    Task { await LiveActivityController.endAll() }
+                }
+                .buttonStyle(.bordered)
+            }
         }
+    }
+
+    /// Push the reducer's current snapshot into the Live Activity,
+    /// whether or not an activity is running (no-op if none).
+    private func syncLiveActivity() {
+        let startedAt = store.state.currentDive?.startedAt
+                      ?? SharedDefaults.diveStartedAt
+                      ?? Date()
+        let state = DiveActivityAttributes.ContentState(
+            from: store.state.dailyBudget,
+            diveStartedAt: startedAt,
+            isShieldArmed: store.state.isShieldArmed
+        )
+        Task { await LiveActivityController.update(state) }
     }
 
     // MARK: - Helpers
