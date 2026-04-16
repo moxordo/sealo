@@ -13,26 +13,36 @@ struct SealoApp: App {
         self._store = State(initialValue: store)
     }
 
-    /// Keeps the Live Activity in sync with the dashboard's view of
-    /// the world on scene activation. **Only updates**; never starts.
-    /// Starting a Live Activity is owned by the monitor extension
-    /// (which knows the exact moment a real dive begins on a
-    /// monitored app). If the main app also started them, any Sealo
-    /// re-entry would create a phantom dive Live Activity even when
-    /// the user never opened Instagram.
+    /// Keeps the Live Activity in sync on scene activation.
+    ///
+    /// Start ownership: only the main app (foregrounded) can start
+    /// activities — Apple restricts `Activity.request()` to the
+    /// main app, not extensions. So we start here if none is
+    /// running AND the user is onboarded. This is a fallback for
+    /// the case where the activity expired (8h ActivityKit lifetime
+    /// cap) or was manually dismissed.
+    ///
+    /// The monitor extension can only *update* a running activity.
+    /// If no activity exists and the user never opens Sealo, dives
+    /// are still counted in SharedDefaults — they just aren't shown
+    /// in the Dynamic Island until the next app open re-starts it.
     private func refreshLiveActivity() async {
-        guard isOnboarded,
-              LiveActivityController.isRunning,
-              let startedAt = store.state.currentDive?.startedAt
-                              ?? SharedDefaults.diveStartedAt
-        else { return }
+        guard isOnboarded else { return }
 
+        let startedAt = store.state.currentDive?.startedAt
+                       ?? SharedDefaults.diveStartedAt
+                       ?? Date()
         let contentState = DiveActivityAttributes.ContentState(
             from: store.state.dailyBudget,
             diveStartedAt: startedAt,
             isShieldArmed: store.state.isShieldArmed
         )
-        await LiveActivityController.update(contentState)
+
+        if LiveActivityController.isRunning {
+            await LiveActivityController.update(contentState)
+        } else {
+            LiveActivityController.start(contentState)
+        }
     }
 
     private var shouldShowDashboard: Bool {

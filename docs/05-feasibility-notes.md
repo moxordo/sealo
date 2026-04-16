@@ -17,7 +17,7 @@ future-me will otherwise have to re-derive every session.
 | Block / shield apps | `ManagedSettings.ManagedSettingsStore` | Apply a shield to tokens. Shield UI is customisable via extensions. |
 | Custom shield screen + actions | `ShieldConfigurationExtension`, `ShieldActionExtension` | SwiftUI-rendered shield screen, primary/secondary action buttons. |
 | Dive-start inference | `DeviceActivityEvent` with a 1-sec threshold | Community-standard trick to get a "dive just began" callback. |
-| Dynamic Island / Lock Screen live gauge | `ActivityKit` Live Activity | App-owned UI on Lock Screen + Dynamic Island. Time-limited. |
+| Dynamic Island / Lock Screen live gauge | `ActivityKit` Live Activity | App-owned UI on Lock Screen + Dynamic Island. Time-limited. **Only the foreground main app can call `Activity.request()` — extensions can `.update()` and `.end()` existing activities but cannot start new ones (iOS 17.2+ `pushToStart` requires a server).** |
 | Home / Lock Screen glanceable gauge | `WidgetKit` timeline widget | Periodically refreshed. Budget-limited. |
 
 ---
@@ -61,7 +61,40 @@ batched or dropped. Even 30 s is flaky. Assume a 60-second floor.
 observed. Budget rungs carefully — dense near the budget ceiling (where
 accuracy matters for shield arming), sparse earlier.
 
-### 3. No free-floating overlay windows
+### 3. Live Activities can only be STARTED by the foreground main app
+
+**Apple restricts `Activity.request()` to apps that have
+`NSSupportsLiveActivities` in their main bundle's Info.plist AND
+are currently foregrounded.** Extensions can import ActivityKit and
+call `.update()` / `.end()` on activities the main app started, but
+they cannot create new ones. If you try, `Activity.request()`
+silently fails (no thrown error, no log message, no activity).
+
+**Consequence for M4**: the Sealo Live Activity cannot start
+exactly when the user opens Instagram (monitor extension fires
+there, but it's not the foreground main app). Our pattern:
+
+1. **Main app starts the activity during onboarding** ("Start
+   diving" button) with an initial content state. The user's in
+   the foreground; `Activity.request()` works.
+2. **Monitor extension updates the running activity** on every
+   `DeviceActivityMonitor` threshold callback via `.update()`.
+3. **Main app restarts the activity on scene-active** if none is
+   running (handles the 8h ActivityKit lifetime expiry).
+4. **Main app ends the activity on day rollover** via
+   `.end(dismissalPolicy: .immediate)`.
+
+This means the Live Activity is *persistent throughout the day*
+rather than *per-dive*. Better UX in practice (user sees their
+oxygen budget at a glance all day), but semantically different
+from the Appendix A mockup framing.
+
+**Alternatives we deferred**: iOS 17.2+ supports `pushToStart` via
+APNs, which would let a push notification start an activity when
+the app isn't foregrounded. Requires server infrastructure — M6+
+territory, not needed for M4.
+
+### 4. No free-floating overlay windows
 
 No third-party iOS app can pin a floating window on top of other apps.
 The strongest *informational* presence iOS offers is the Dynamic Island

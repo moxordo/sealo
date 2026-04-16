@@ -157,6 +157,14 @@ struct OnboardingView: View {
             Task {
                 do {
                     try await screenTimeService.startMonitoring()
+
+                    // Start the Live Activity RIGHT NOW while the
+                    // main app is foregrounded — this is the only
+                    // moment we can reliably call Activity.request.
+                    // From here on, the monitor extension updates
+                    // the running activity on threshold crossings.
+                    startInitialLiveActivity()
+
                     errorMessage = nil
                     isOnboarded = true
                 } catch {
@@ -174,5 +182,25 @@ struct OnboardingView: View {
         if let data = try? JSONEncoder().encode(selection) {
             SharedDefaults.saveAppSelection(data)
         }
+    }
+
+    /// Kick off a persistent Live Activity with an "idle" content
+    /// state right after the user completes onboarding. Because
+    /// Activity.request only works from the foreground main app, we
+    /// MUST do this now — once the user leaves Sealo we can't
+    /// retroactively start one, only update whatever's running.
+    private func startInitialLiveActivity() {
+        let schedule = SharedDefaults.loadSchedule()
+        let budget = SharedDefaults.loadDailyBudget() ?? DailyBudget(
+            date: Date().startOfDay(),
+            maxMinutes: schedule.maxMinutesPerDay,
+            maxDives: schedule.maxDivesPerDay
+        )
+        let state = DiveActivityAttributes.ContentState(
+            from: budget,
+            diveStartedAt: Date(),
+            isShieldArmed: false
+        )
+        LiveActivityController.start(state)
     }
 }

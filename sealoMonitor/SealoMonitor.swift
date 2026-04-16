@@ -94,21 +94,19 @@ class SealoMonitor: DeviceActivityMonitor {
             budget.consumedDives = count
             SharedDefaults.saveDailyBudget(budget)
 
-            // Start or update the Live Activity. The extension is
-            // the only surface that knows the EXACT moment a dive
-            // begins (user foregrounded a monitored app), so it
-            // owns the `start` action — the main app only updates.
+            // Push an update to the already-running Live Activity.
+            // The extension CANNOT start a new activity — Apple
+            // restricts `Activity.request()` to foreground main apps.
+            // The main app starts the activity during onboarding
+            // and restarts it on scene-active if it's expired; the
+            // extension only updates what's already there.
             let stateSnapshot = DiveActivityAttributes.ContentState(
                 from: budget,
                 diveStartedAt: now,
                 isShieldArmed: SharedDefaults.isShieldArmed
             )
             Task { @MainActor in
-                if LiveActivityController.isRunning {
-                    await LiveActivityController.update(stateSnapshot)
-                } else {
-                    LiveActivityController.start(stateSnapshot)
-                }
+                await LiveActivityController.update(stateSnapshot)
             }
 
             if budget.isExhausted || budget.shouldPreArmShield {
