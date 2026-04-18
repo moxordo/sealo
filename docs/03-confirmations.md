@@ -197,3 +197,45 @@ commit); reversing it is equally mechanical. Much more painful if we
 defer the rename past the point where App Store metadata, press
 coverage, or user habits have accumulated — but at M3 with no real
 users yet, the window is still open.
+
+---
+
+## D9 — Shield-based per-foreground dive detection (M5)
+
+**Decision:** M5's `ShieldConfigurationExtension` +
+`ShieldActionExtension` will serve as both (a) the custom shield UI
+("Sealo is surfacing" screen) AND (b) the primary mechanism for
+per-foreground dive detection. The shield is applied to the full
+monitored app set at all times, not just on budget exhaustion. Each
+dismiss-tap on the shield is counted as a new dive; shield re-apply
+is the dive-end signal. This replaces the M3/M4 approach of using
+the 1-second `DeviceActivityEvent` threshold trick (which only fires
+once per day).
+
+**Ratified:** 2026-04-16
+
+**Rationale:** Device testing in M3/M4 revealed three iOS
+constraints that blocked the original per-dive vision:
+
+- `Activity.request()` requires foreground main app — extensions
+  cannot start Live Activities.
+- `DeviceActivityEvent` thresholds fire at most once per monitoring
+  interval — the "1-sec dive-started trick" only works for the
+  first dive of the day.
+- No "user left the monitored app" callback exists in
+  `DeviceActivityMonitor` — live mm:ss timers can't stop themselves.
+
+The shield-based pattern resolves all three simultaneously:
+shield-tap is the foreground moment that lets us call
+`Activity.request()`, it's the per-dive start signal iOS gives us,
+and the shield re-apply on app close is the missing dive-end
+signal. Community apps (One Sec, Opal, Jomo) all use this pattern
+for the same reasons.
+
+**Impact if reversed:** We would have to accept all three M4
+compromises permanently (Live Activity all-day-only, dive count
+= 1/day, no live timer). Alternative per-foreground detection
+approaches (e.g., re-arming the threshold via a second
+`DeviceActivityCenter` activity) were explored and rejected as
+either unreliable or architecturally more complex than the shield
+pattern.

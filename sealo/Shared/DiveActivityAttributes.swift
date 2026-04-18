@@ -27,10 +27,9 @@ public struct DiveActivityAttributes: ActivityAttributes {
         /// time so the widget extension doesn't have to recompute it.
         public var fillFraction: Double
 
-        /// Wall-clock instant this dive began. The widget uses
-        /// `.timer(from:)` and `Text(timerInterval:)` to tick the
-        /// mm:ss display without our code having to update every
-        /// second.
+        /// Wall-clock instant this dive began. Retained for future
+        /// per-dive logic (M5 shield-based detection); not currently
+        /// displayed as a live ticker — see `consumedMinutesToday`.
         public var diveStartedAt: Date
 
         /// Which dive we're on today (1-based).
@@ -44,6 +43,16 @@ public struct DiveActivityAttributes: ActivityAttributes {
         /// expanded view's center region.
         public var minutesRemaining: Double
 
+        /// Total minutes used today across all dives. Updated only
+        /// on real iOS threshold callbacks — so the display freezes
+        /// when the user leaves the monitored app (no more callbacks
+        /// arrive) and resumes when they return. Minute-precision
+        /// matches the underlying threshold ladder; see
+        /// `docs/05-feasibility-notes.md` for why we don't attempt
+        /// second-level accuracy without shield-based per-foreground
+        /// detection (M5).
+        public var consumedMinutesToday: Double
+
         /// Whether the shield is currently armed. Drives the
         /// low-O₂ opacity pulse (battery pulses at reduced opacity
         /// when fillFraction < 15 % OR shield is armed).
@@ -55,6 +64,7 @@ public struct DiveActivityAttributes: ActivityAttributes {
             diveNumber: Int,
             maxDives: Int,
             minutesRemaining: Double,
+            consumedMinutesToday: Double,
             isShieldArmed: Bool
         ) {
             self.fillFraction = fillFraction
@@ -62,6 +72,7 @@ public struct DiveActivityAttributes: ActivityAttributes {
             self.diveNumber = diveNumber
             self.maxDives = maxDives
             self.minutesRemaining = minutesRemaining
+            self.consumedMinutesToday = consumedMinutesToday
             self.isShieldArmed = isShieldArmed
         }
     }
@@ -89,6 +100,7 @@ extension DiveActivityAttributes.ContentState {
             diveNumber: state.dailyBudget.consumedDives,
             maxDives: state.dailyBudget.maxDives,
             minutesRemaining: state.dailyBudget.remainingMinutes,
+            consumedMinutesToday: state.dailyBudget.consumedMinutes,
             isShieldArmed: state.isShieldArmed
         )
     }
@@ -102,6 +114,7 @@ extension DiveActivityAttributes.ContentState {
             diveNumber: budget.consumedDives,
             maxDives: budget.maxDives,
             minutesRemaining: budget.remainingMinutes,
+            consumedMinutesToday: budget.consumedMinutes,
             isShieldArmed: isShieldArmed
         )
     }

@@ -6,16 +6,62 @@ completed milestones collapse to a one-line summary.
 
 ---
 
-## Current milestone: **M4 — Live Activity + Dynamic Island + widget**
+## Current milestone: **M5 — Shield as UI + per-foreground detection**
 
-**Status:** starting
-**Gate:** on a real device, the Dynamic Island shows the shrinking
-battery within 2 s of dive start; Lock Screen Live Activity shows
-during a dive; home-screen widget updates between dives.
+**Status:** not started
+**Gate:** every monitored-app open triggers the Sealo shield;
+shield-tap increments dive count; Live Activity shows per-dive
+mm:ss that freezes when the user leaves the app; user can edit
+monitored apps from settings without reinstalling.
 
-> M5 (custom shield + per-foreground dive counting) and M1 (design
-> system polish + Sealo character art) follow M4. M6 (TestFlight) is
-> the final milestone.
+> M5 scope expanded after M3/M4 device testing — the shield is the
+> only iOS mechanism that gives per-foreground dive signals, so it
+> resolves five of the six compromises we carried forward from M4.
+> Details: `01-plan.md` § M5. Compromise list: below under
+> "Compromises resolved by M5".
+
+---
+
+## Completed: **M4 — Live Activity + Dynamic Island + widget**
+
+**Started:** 2026-04-16 | **Completed:** 2026-04-16
+**Gate met:** on user's iPhone (iOS 26.4), Dynamic Island shows
+the battery within 2 s of onboarding completion; Lock Screen Live
+Activity renders; home widget displays today's budget; updates
+arrive on each threshold crossing.
+
+> M4 shipped with 6 compromises from iOS platform constraints.
+> See "Compromises resolved by M5" below.
+
+---
+
+### Compromises carried forward from M4 → resolved by M5
+
+1. **Live Activity is persistent all day, not per-dive.**
+   iOS restricts `Activity.request()` to foreground main app;
+   extensions cannot start activities. M5 shield-tap is the
+   foreground-main-app moment that lets us start per-dive.
+
+2. **Dive count = 1 per day, not per foreground.**
+   `DeviceActivityEvent` thresholds fire once per interval.
+   M5 counts shield-tap dismissals instead of threshold events.
+
+3. **No live mm:ss ticker — only minute-precision snapshots.**
+   No "user left app" iOS callback. M5 shield re-apply is the
+   exit signal; real start + end timestamps enable genuine
+   per-dive timers.
+
+4. **No "edit monitored apps" flow — must reinstall to change.**
+   Not an iOS constraint; just deferred UI work. M5 adds a
+   settings-screen flow.
+
+5. **Shield UI is iOS default gray, not Sealo-themed.**
+   `ShieldConfigurationExtension` is M5's UI deliverable.
+
+6. **Live Activity dies after 8h (ActivityKit lifetime cap).**
+   NOT resolved by M5 — requires `pushToStart` via APNs
+   (M6+ server work). Partial mitigation: main app re-starts
+   the activity on scene-active.
 
 ---
 

@@ -98,12 +98,52 @@ navigate without reading the full rationale.
 - **Gate:** Dynamic Island shows the battery within 2 s of dive start
   on a real device.
 
-### M5 — Custom shield UI + onboarding polish
-- [ ] `ShieldConfigurationExtension` — SwiftUI "out of oxygen" screen.
-- [ ] `ShieldActionExtension` — surface-now / dismiss only. No
-      "request more time" per `D3`.
-- [ ] Onboarding: explain the metaphor, request Family Controls
-      permission, drive the picker, set an initial schedule.
+### M5 — Shield as both UI surface AND per-foreground detection
+
+**Scope expanded from original "shield UI polish" after M3/M4 device
+testing revealed that the shield is the only iOS mechanism that gives
+us per-foreground dive signals.** Before M5, the shield was a
+consequence of budget exhaustion; after M5, the shield is the primary
+interaction point for every monitored-app open.
+
+**UI extensions:**
+- [ ] `ShieldConfigurationExtension` — SwiftUI "Sealo is surfacing"
+      screen that replaces iOS's default gray shield. Sealo mascot
+      (from M1 art) if available; text-only calm copy otherwise.
+- [ ] `ShieldActionExtension` — handles the shield's CTA. Per `D3`,
+      the only action is "dismiss" (close the SNS app). No
+      "request more time" escape hatch in v1.
+
+**Per-foreground dive architecture (resolves M4 compromises 1, 2, 3):**
+- [ ] Shield is applied to the full monitored set at all times, not
+      just on budget exhaustion. Every Instagram open hits the shield
+      first.
+- [ ] Each `ShieldActionExtension` dismiss-tap is counted as a new
+      dive — gives us accurate per-foreground dive count.
+- [ ] Dive-start timestamp = shield-tap moment (confirmed foreground).
+- [ ] Dive-end timestamp = shield re-apply moment (user closed the
+      app). With both, `Text(timerInterval: start…end)` can render a
+      true per-dive mm:ss that genuinely freezes between sessions.
+- [ ] Live Activity becomes per-dive again: started on shield-tap,
+      ended on shield re-apply. Reverts from M4's all-day persistent
+      model.
+
+**Settings + onboarding polish:**
+- [ ] "Edit monitored apps" settings flow — opens
+      `FamilyActivityPicker` outside onboarding so the user can add
+      Slack, remove Instagram, etc. without reinstalling (resolves
+      M4 compromise #4).
+- [ ] Onboarding polish: real Sealo copy, character appears in
+      welcome flow, smoother transitions (some of this overlaps M1).
+
+**Gate:**
+- Every monitored-app open triggers the Sealo shield screen.
+- Tapping "Continue" dismisses the shield and counts a new dive.
+- Live Activity shows per-dive mm:ss timer that freezes when the
+  user leaves the app.
+- Dive count increments per-foreground, not per-day.
+- User can edit monitored apps from a settings screen without
+  reinstalling.
 
 ### M6 — TestFlight beta
 - [ ] Archive, upload, submit to internal TestFlight.
