@@ -193,6 +193,49 @@ only**. No direct IPC, no NSDistributedNotificationCenter, no file-less
 signalling. Every state change gets written to the shared SQLite DB or
 shared `UserDefaults` and read on the other side.
 
+### Extension point identifiers — verify against `xctemplate`
+
+The exact `NSExtensionPointIdentifier` string in each extension's
+`Info.plist` must match what iOS's extension-host daemon is looking
+for. Apple's documentation drifts from SDK reality; **the ground
+truth is the `xctemplate` files under
+`/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates/Project Templates/iOS/Application Extension/*.xctemplate/TemplateInfo.plist`**.
+
+Grepping for `NSExtensionPointIdentifier` in those files is the
+authoritative lookup. Values that bit us during M3–M5:
+
+| Extension | Wrong guess | Correct (verified) |
+|---|---|---|
+| DeviceActivityMonitor | `com.apple.deviceactivitymonitor` | `com.apple.deviceactivity.monitor-extension` |
+| ShieldConfiguration | — | `com.apple.ManagedSettingsUI.shield-configuration-service` |
+| ShieldAction | `com.apple.ManagedSettingsUI.shield-action-service` | `com.apple.ManagedSettings.shield-action-service` |
+
+Pattern: extensions that *render UI* use `ManagedSettingsUI`.
+Extensions that *respond to events without rendering* use plain
+`ManagedSettings`. DeviceActivityMonitor is non-UI and lives under
+`deviceactivity` (not `deviceactivityUI`).
+
+### Xcode 26.4 `devicectl` bug — `appGroupDataContainer` copy
+
+`xcrun devicectl device copy from --domain-type appGroupDataContainer`
+fails in Xcode 26.4 with error code 7000:
+
+```
+File paths cannot contain '..'
+(com.apple.dt.remoteservices.error error 11007)
+NSFilePath = /private/var/mobile/Containers/Shared/AppGroup/<UUID>/<filename>
+```
+
+The device-side path has no `..` — the error is an internal
+path-validation bug in `devicectl`'s handling of the app-group
+domain. `--domain-type appDataContainer` works correctly.
+
+**Workaround**: the main app mirrors the App Group log file into
+its own `Documents/` folder on scene-active (see
+`FileLogger.mirrorToMainAppDocuments()`). `./scripts/pull-logs.sh`
+pulls via `appDataContainer` instead. Revisit when Xcode ships a
+fix.
+
 ---
 
 ## Testing and signing tiers

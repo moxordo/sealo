@@ -8,7 +8,10 @@ completed milestones collapse to a one-line summary.
 
 ## Current milestone: **M5 — Shield as UI + per-foreground detection**
 
-**Status:** not started
+**Status:** code complete (37/37 tests pass via `./scripts/test.sh
+--full`); device verification in progress, two issues being
+diagnosed as of 2026-04-18.
+
 **Gate:** every monitored-app open triggers the Sealo shield;
 shield-tap increments dive count; Live Activity shows per-dive
 mm:ss that freezes when the user leaves the app; user can edit
@@ -19,6 +22,62 @@ monitored apps from settings without reinstalling.
 > resolves five of the six compromises we carried forward from M4.
 > Details: `01-plan.md` § M5. Compromise list: below under
 > "Compromises resolved by M5".
+
+### M5 code progress
+
+Committed on `m5/shield-based-detection`:
+- `sealoShieldConfig` extension (commit `503bff5`) — "Sealo is
+  surfacing. / Take a breath." SwiftUI, teal background, primary
+  "Resurface" + secondary "Continue diving" buttons.
+- `sealoShieldAction` extension (commit `503bff5`) —
+  `ShieldActionDelegate` subclass. Primary returns `.close`;
+  secondary calls `startNewDive()` (SharedDefaults writes + Live
+  Activity update) then `.defer`. Per D3, no escape-hatch button.
+- `applyPermanentShield()` in `RealScreenTimeService` (commit
+  `9b09e84`) — shield applied from onboarding's "Start diving" tap,
+  not just on exhaustion.
+- Reducer test for the SharedDefaults reconcile flow after a
+  shield-dismiss (`test_reconcileWithSharedState_picksUpShieldDismissDives`).
+- `EditMonitoredAppsView` — sheet opened from a gear icon in
+  dashboard header; resolves M4 compromise #4.
+- Fix to `NSExtensionPointIdentifier` for shield action (commit
+  `3902c72`) — was `com.apple.ManagedSettingsUI.shield-action-service`,
+  must be `com.apple.ManagedSettings.shield-action-service` (no UI
+  suffix) per Apple's xctemplate. Same failure-pattern as M3's
+  DeviceActivityMonitor identifier bug.
+
+### Two device-test issues as of 2026-04-18 (in flight)
+
+**Issue A: "Continue diving" button does nothing even after the
+identifier fix + app delete-and-reinstall.** User reports no dive
+counted, shield doesn't dismiss, Telegram doesn't open. Diagnosis
+via device logs pending — blocked by a Xcode 26.4 `devicectl` bug
+(see below). Workaround in progress.
+
+**Issue B: Shield is NOT re-applied on day rollover.** User reports
+that on a new calendar day, previously-monitored apps are no longer
+shielded. Root cause: both the reducer's `reduceDayRolled()` and
+the monitor extension's `intervalDidStart`/`intervalDidEnd` handlers
+explicitly clear `store.shield.applications = nil`. That was correct
+for M4's model (shield only armed on exhaustion) but WRONG for M5's
+model (shield is always on per D9). Fix needed in two places:
+- `AppStore.reduceDayRolled()` should keep shield applied, not
+  disarm.
+- `SealoMonitor.intervalDidStart`/`intervalDidEnd` should re-apply
+  the shield (not clear it) on interval boundaries.
+
+### Xcode 26.4 `devicectl` bug — workaround in progress
+
+`xcrun devicectl device copy from --domain-type appGroupDataContainer`
+fails with "File paths cannot contain '..'" (NSError 7000) even
+though the device-side path has no `..`. Internal path-normalization
+bug in Xcode 26.4. `appDataContainer` domain works fine.
+
+Workaround being added to `sealo/Shared/FileLogger.swift`: the main
+app mirrors the App Group log file to its own `Documents/` folder
+on scene-active. `./scripts/pull-logs.sh` then pulls from
+`appDataContainer`. Code committed; still need to update the script
+to match. (Uncommitted as of this note.)
 
 ---
 

@@ -25,6 +25,44 @@ public enum FileLogger {
         return container.appendingPathComponent(fileName)
     }
 
+    /// URL inside the main app's own Documents folder where we
+    /// mirror the shared log for off-device extraction via
+    /// `devicectl copy from --domain-type appDataContainer`.
+    ///
+    /// This workaround exists because Xcode 26.4's `devicectl`
+    /// hits an internal path-validation bug when copying from
+    /// `appGroupDataContainer` ("File paths cannot contain '..'"
+    /// error). `appDataContainer` works, so we mirror into the
+    /// main app's sandbox and pull from there.
+    ///
+    /// Only callable from the main app process (extensions can't
+    /// write into another target's Documents folder).
+    #if !MONITOR_EXTENSION && !WIDGET_EXTENSION && !SHIELD_ACTION_EXTENSION
+    public static var mainAppMirrorURL: URL? {
+        let fm = FileManager.default
+        guard let docs = fm.urls(
+            for: .documentDirectory, in: .userDomainMask
+        ).first else { return nil }
+        return docs.appendingPathComponent(fileName)
+    }
+
+    /// Copy the current App Group log file to the main app's
+    /// Documents folder. Called from the main app on scene-active
+    /// so `./scripts/pull-logs.sh` can retrieve the mirror.
+    public static func mirrorToMainAppDocuments() {
+        guard let source = logURL, let dest = mainAppMirrorURL else { return }
+        guard FileManager.default.fileExists(atPath: source.path) else { return }
+        do {
+            if FileManager.default.fileExists(atPath: dest.path) {
+                try FileManager.default.removeItem(at: dest)
+            }
+            try FileManager.default.copyItem(at: source, to: dest)
+        } catch {
+            // Best-effort; next scene-active attempt tries again.
+        }
+    }
+    #endif
+
     /// Append one structured log entry. `source` identifies the
     /// process ("app" or "monitor") so interleaved entries stay
     /// readable.

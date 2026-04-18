@@ -90,13 +90,19 @@ navigate without reading the full rationale.
 - **Gate:** on a real device, a scheduled dive fires a real threshold
   callback, the reducer advances, and the shield engages.
 
-### M4 — Live Activity + Dynamic Island + home widget
-- [ ] `ActivityKit` Live Activity started on dive begin / ended on end.
-- [ ] Dynamic Island minimal + compact + expanded per Appendix A.
-- [ ] Lock Screen Live Activity card per Appendix A.
-- [ ] WidgetKit timeline widget.
-- **Gate:** Dynamic Island shows the battery within 2 s of dive start
-  on a real device.
+### M4 — Live Activity + Dynamic Island + home widget (completed 2026-04-16)
+- [x] `ActivityKit` Live Activity (persistent-all-day pattern per
+      iOS platform constraint — see `05-feasibility-notes.md` §
+      "Live Activities can only be STARTED by the foreground main app").
+- [x] Dynamic Island minimal + compact + expanded per Appendix A.
+- [x] Lock Screen Live Activity card per Appendix A.
+- [x] WidgetKit timeline widget (`sealoWidget` small + medium).
+- **Gate MET** on user's iPhone 15 Pro (iOS 26.4): Dynamic Island
+  shows the battery within 2 s of onboarding completion; Lock Screen
+  card renders; home widget updates on each threshold crossing.
+
+> Shipped with 6 compromises that M5 resolves 5 of. See
+> `docs/02-progress.md` "Compromises carried forward from M4".
 
 ### M5 — Shield as both UI surface AND per-foreground detection
 
