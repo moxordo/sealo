@@ -50,6 +50,12 @@ targets:
       - target: sealoWidget
         embed: true
         codeSign: true
+      - target: sealoShieldConfig
+        embed: true
+        codeSign: true
+      - target: sealoShieldAction
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo
@@ -118,6 +124,50 @@ targets:
         # Widget extension compiles the shared Log.Channel, which
         # needs to know if it's in the "widget" source.
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) WIDGET_EXTENSION"
+
+  sealoShieldConfig:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: sealoShieldConfig
+      # No domain sources needed — the shield config is a pure UI
+      # data source, computes nothing from app state.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.shieldconfig
+        PRODUCT_NAME: sealoShieldConfig
+        PRODUCT_MODULE_NAME: sealoShieldConfig
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: sealoShieldConfig/Info.plist
+        CODE_SIGN_ENTITLEMENTS: sealoShieldConfig/sealoShieldConfig.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+
+  sealoShieldAction:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: sealoShieldAction
+      # Shield action needs Domain types (DailyBudget), SharedDefaults
+      # for IPC, DiveActivityAttributes for the Live Activity update,
+      # and LiveActivityController to push updates. Same pattern as
+      # sealoMonitor.
+      - path: sealo/Domain
+      - path: sealo/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.moxordo.sealo.shieldaction
+        PRODUCT_NAME: sealoShieldAction
+        PRODUCT_MODULE_NAME: sealoShieldAction
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: sealoShieldAction/Info.plist
+        CODE_SIGN_ENTITLEMENTS: sealoShieldAction/sealoShieldAction.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+        # Tags FileLogger entries from this target as a unique source.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SHIELD_ACTION_EXTENSION"
 
   sealoTests:
     type: bundle.unit-test

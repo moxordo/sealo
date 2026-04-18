@@ -37,6 +37,8 @@ public enum Log {
             return "monitor"
             #elseif WIDGET_EXTENSION
             return "widget"
+            #elseif SHIELD_ACTION_EXTENSION
+            return "shield"
             #else
             return "app"
             #endif
