@@ -6,11 +6,23 @@ import SwiftUI
 /// in M3; real dashboard design replaces this layout in M1.
 struct ContentView: View {
     @Bindable var store: AppStore
+    @State private var showingEditApps = false
 
     var body: some View {
         VStack(spacing: 24) {
-            Text("Sealo")
-                .font(.title2.weight(.semibold))
+            HStack {
+                Text("Sealo")
+                    .font(.title2.weight(.semibold))
+                Spacer()
+                Button {
+                    showingEditApps = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityLabel("Edit monitored apps")
+            }
 
             // Gauge driven by the reducer's fill fraction.
             OxygenTankGauge(fill: store.state.fillFraction)
@@ -46,6 +58,9 @@ struct ContentView: View {
         .padding()
         .onAppear {
             store.send(.appBecameActive)
+        }
+        .sheet(isPresented: $showingEditApps) {
+            EditMonitoredAppsView()
         }
     }
 

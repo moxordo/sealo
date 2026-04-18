@@ -356,4 +356,46 @@ final class AppStoreTests: XCTestCase {
 
         XCTAssertEqual(store.state.fillFraction, 0.0, accuracy: 0.01)
     }
+
+    // MARK: - Shield path (M5 per-foreground dive detection)
+
+    /// Simulates what the ShieldActionExtension does when the user
+    /// taps "Continue diving": writes to SharedDefaults. The main
+    /// app then picks it up via reconcileWithSharedState on next
+    /// scene-active. Verifies the read side of that flow.
+    func test_reconcileWithSharedState_picksUpShieldDismissDives() {
+        let clock = FakeClock(now: AppStoreTests.refDate)
+        let schedule = Schedule(maxMinutesPerDay: 60, maxDivesPerDay: 6)
+        let store = AppStore(schedule: schedule, clock: clock)
+
+        // Simulate the shield action extension writing data while
+        // the main app was backgrounded.
+        var sharedBudget = DailyBudget(
+            date: AppStoreTests.refDate.startOfDay(),
+            maxMinutes: 60,
+            maxDives: 6,
+            consumedSeconds: 0,
+            consumedDives: 3        // three shield-taps while away
+        )
+        sharedBudget.dives = []
+        SharedDefaults.saveDailyBudget(sharedBudget)
+        SharedDefaults.consumedDives = 3
+        SharedDefaults.diveStartedAt = AppStoreTests.refDate
+        SharedDefaults.isShieldArmed = false
+
+        // Main app comes back to foreground.
+        store.reconcileWithSharedState()
+
+        XCTAssertEqual(store.state.dailyBudget.consumedDives, 3)
+        XCTAssertEqual(store.state.dailyBudget.maxDives, 6)
+
+        // Clean up UserDefaults suite so we don't pollute other tests.
+        SharedDefaults.saveDailyBudget(DailyBudget(
+            date: AppStoreTests.refDate.startOfDay(),
+            maxMinutes: 60,
+            maxDives: 6
+        ))
+        SharedDefaults.consumedDives = 0
+        SharedDefaults.diveStartedAt = nil
+    }
 }

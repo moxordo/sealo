@@ -158,6 +158,14 @@ struct OnboardingView: View {
                 do {
                     try await screenTimeService.startMonitoring()
 
+                    // Shield the monitored set from now on. Every
+                    // open of a monitored app will show Sealo's
+                    // custom shield (SealoShieldConfigDataSource);
+                    // tapping "Continue diving" counts a dive (in
+                    // SealoShieldActionHandler). Per `D9`, this is
+                    // M5's primary per-foreground detection path.
+                    try await screenTimeService.applyPermanentShield()
+
                     // Start the Live Activity RIGHT NOW while the
                     // main app is foregrounded — this is the only
                     // moment we can reliably call Activity.request.

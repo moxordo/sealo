@@ -138,4 +138,21 @@ public final class RealScreenTimeService: ScreenTimeService, @unchecked Sendable
         store.shield.applicationCategories = nil
         SharedDefaults.isShieldArmed = false
     }
+
+    /// Apply shield permanently over the monitored app set. Called
+    /// from onboarding's "Start diving" tap (and from the "Edit
+    /// monitored apps" flow when selection changes). From this point
+    /// on, every foreground of a monitored app triggers our
+    /// `SealoShieldConfigDataSource` → user taps "Continue diving" →
+    /// `SealoShieldActionHandler` counts a new dive.
+    ///
+    /// Distinct from `armShield()` only conceptually — technically
+    /// the same ManagedSettings call, just invoked at a different
+    /// lifecycle moment. Kept separate method for readability and
+    /// in case we later want to differentiate (e.g. hide "Continue
+    /// diving" button on the exhaustion shield).
+    public func applyPermanentShield() async throws {
+        try await armShield()
+        Log.service.notice("applyPermanentShield: shield applied to monitored set")
+    }
 }
